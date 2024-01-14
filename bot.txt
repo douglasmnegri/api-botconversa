@@ -1,0 +1,17 @@
+curl 'https://backend.botconversa.com.br/api/v1/blocks_integration/test_request/' \
+  -H 'authority: backend.botconversa.com.br' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'accept-language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7' \
+  -H 'authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAzNjI5MjkwLCJqdGkiOiI0NTIyZTZkZWMxN2I0YmE3ODE3YzUxN2ViZTUwZTExMyIsInVzZXJfaWQiOjMzOTU0MywiZmlyc3RfbmFtZSI6IkRvdWdsYXMiLCJsYXN0X25hbWUiOiJNZWxvIE5lZ3JpIiwiaXNfaW50ZXJjb21fZW5hYmxlZCI6ZmFsc2V9.NuF3PF065Hay9CO7mL4AIT9mLXQeT7XdhRGXVFLo9Jo' \
+  -H 'content-type: application/json' \
+  -H 'origin: https://app.botconversa.com.br' \
+  -H 'referer: https://app.botconversa.com.br/' \
+  -H 'sec-ch-ua: "Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"' \
+  -H 'sec-ch-ua-mobile: ?1' \
+  -H 'sec-ch-ua-platform: "Android"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-site' \
+  -H 'user-agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36' \
+  --data-raw '{"body":{"shirtID":"{id_vortex_colorida}","colorBack":"{cores_costas}","colorFront":"{cores_frente}","shirtQuantity":"{QtdPedidoAtual}"},"headers":{},"url":"https://8996-45-231-0-211.ngrok-free.app/api/calculate","request_type":0}' \
+  --compressed
