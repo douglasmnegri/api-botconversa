@@ -30,10 +30,10 @@ app.post('/api/calculate', (req, res) => {
 });
 
 
-app.post('/api/vasco', (req, res) => {
+app.get('/api/health', (req, res) => {
   // Handle the POST request
-  console.log('Message Received (PUT):', req.body);
-  res.send('Hi hI vasco');
+  console.log('Message Received (GET)');
+  res.send('OK');
 });
 
 app.listen(port, '0.0.0.0', () => {
