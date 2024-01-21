@@ -1,18 +1,18 @@
 // index.js
-
+require('dotenv').config()
+console.log(process.env)
 const express = require('express');
 const app = express();
 const port = 3001;
 
 const {calculateShirtPrice} = require('./run-price');
-const {calculateQuote} = require('./frete.js');
+const {calculateQuote} = require('./freight.js');
 app.use(express.json());
 
 // Route handler for POST requests at /api/calculate
 app.post('/api/calculate', (req, res) => {
   try {
     const postData = req.body;
-    console.log(postData);
     // Pass the postData to the runPrice module
     const priceResult = calculateShirtPrice(postData);
 
@@ -28,7 +28,6 @@ app.post('/api/calculate', (req, res) => {
     res.status(500).json({ error: 'Internal Server Error'});
   }
 });
-
 
 app.get('/api/health', (req, res) => {
   // Handle the POST request
