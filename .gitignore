@@ -129,5 +129,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Freight file
-freight.js
