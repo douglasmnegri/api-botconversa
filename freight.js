@@ -3,8 +3,8 @@
             const requestBody = req.body;
             const modifiedBodyContent = manageData(requestBody);
             const shippingPrice = await fetchPrice(modifiedBodyContent);
-            const freightResult = generateString(shippingPrice);
-            
+            const freightResult = generateString(shippingPrice, requestBody);
+
             // res.send(freightResult) so it's possible to read from BotConversa endpoint;
             res.json({
                 freight: freightResult
@@ -72,8 +72,7 @@
         }
     }
 
-    function generateString(shippingPrice) {
-        console.log(typeof shippingPrice, shippingPrice);
+    function generateString(shippingPrice, requestBody) {
         try {
             if (!shippingPrice || !shippingPrice.ShippingSevicesArray || !Array.isArray(shippingPrice.ShippingSevicesArray)) {
                 throw new Error('Invalid or missing shippingPrice structure');
@@ -83,11 +82,22 @@
                 if (element.ShippingPrice !== undefined) {
                     switch(element.ServiceDescription) {
                         case "Jadlog":
+                        case "Bauer Express":
                         element.ShippingPrice = parseFloat(element.ShippingPrice) + 5;
                         element.ShippingPrice = element.ShippingPrice.toFixed(2);
                         break;
                     }
-                    return `Transportadora: ${element.Carrier}
+
+                    if (requestBody.Shirts > 300 && requestBody.Shirts < 501) {
+                        switch(element.ServiceDescription) {
+                            case "Bauer Express":
+                                element.ShippingPrice = parseFloat(element.ShippingPrice) + 35;
+                                element.ShippingPrice = element.ShippingPrice.toFixed(2);
+                                break;
+                        }
+                    }
+
+            return `Transportadora: ${element.Carrier}
             Preço: R$ ${element.ShippingPrice}
             Tempo de Transporte: ${element.DeliveryTime} dias úteis`;
                 }
