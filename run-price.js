@@ -117,7 +117,7 @@ function shirtAndCustom(receivedData) {
     if (selectedShirt) {
         customPrice += selectedShirt.price;
     }
-
+ 
     if (receivedData.shirtQuantity < 100) {
         customPrice += 2;
     }
@@ -133,8 +133,12 @@ function calculateShirtPrice(receivedData) {
     return shirtAndCustom(receivedData);
 }
 
+function sum(a,b) {
+    return a + b;
+}
 
 module.exports = {
-    calculateShirtPrice
+    calculateShirtPrice,
+    sum
 };
 
