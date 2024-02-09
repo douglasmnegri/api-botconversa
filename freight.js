@@ -3,6 +3,7 @@
             const requestBody = req.body;
             const modifiedBodyContent = manageData(requestBody);
             const shippingPrice = await fetchPrice(modifiedBodyContent);
+            console.log(shippingPrice);
             const freightResult = generateString(shippingPrice, requestBody);
 
             // res.send(freightResult) so it's possible to read from BotConversa endpoint;

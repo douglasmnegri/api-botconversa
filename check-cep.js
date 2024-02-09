@@ -17,8 +17,10 @@ async function getCEP(req, res) {
 function fixCEP(bodyRequest) {
     const url = "https://api.postmon.com.br/v1/cep/";
     let clientAddress = bodyRequest.RecipientCEP;
-    let removeSymbols = clientAddress.replace(/\D/g, '');
-    let correctUrl = url + removeSymbols;
+    if(clientAddress.length === 7) {
+        clientAddress = "0" + clientAddress;
+    }
+    let correctUrl = url + clientAddress;
     return correctUrl;
 }
 
@@ -43,6 +45,7 @@ async function checkURL(fixedCEP) {
 }
 
 function generateString(data) {
+    
     if (data.bairro === "" || data.logradouro === "") {
         return `
                 Cidade: ${data.cidade}
@@ -54,8 +57,8 @@ function generateString(data) {
                 Cidade: ${data.cidade}
                 Estado: ${data.estado_info.nome}`;
     }
-}
 
+}
 
 
 module.exports = {
