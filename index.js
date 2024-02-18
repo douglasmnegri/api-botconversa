@@ -12,11 +12,11 @@ const {getCEP} = require('./check-cep.js');
 app.use(express.json());
 
 // Route handler for POST requests at /api/calculate
-app.post('/api/calculate', (req, res) => {
+app.post('/api/calculate', async (req, res) => {
   try {
     const postData = req.body;
     // Pass the postData to the runPrice module
-    const priceResult = calculateShirtPrice(postData);
+    const priceResult = await calculateShirtPrice(postData);
 
     // Send the processed data and price back in the response
     res.json({

@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_USER: admin123
+      POSTGRES_PASSWORD: dmn102030
+      POSTGRES_DB: click_camisetas
+    volumes:
+      - /var/lib/postgresql/data

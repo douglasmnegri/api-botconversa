@@ -1,6 +1,14 @@
 // run-price.js
+const {development:dbConfig} = require('./knexfile');
+const knex = require('knex');
+const dbConnection = knex(dbConfig);
 const SETUP = 30;
 const PROFIT = 0.6; 
+
+async function getPrice(id) {
+    const shirts = await dbConnection('shirts').where('id', id).first();
+    return shirts;
+}
 
 const shirtsData = [
     {id: 102, name: "Camiseta de Algodão Branca", price: 10.5},
@@ -103,19 +111,21 @@ function calculateCustomPrice(receivedData) {
     return customPriceBack + customPriceFront;
 }
 
-function shirtAndCustom(receivedData) {
+async function shirtAndCustom(receivedData) {
     console.log(typeof receivedData.shirtID, !receivedData);
     if (!receivedData || isNaN(receivedData.shirtID)) {
         console.error('Invalid or missing shirt ID in receivedData.');
         return [0, 0];
     }
-    let selectedShirt = shirtsData.find(shirt => shirt.id === Number(receivedData.shirtID));
+    let selectedShirt = await getPrice(receivedData.shirtID);
+    console.log(selectedShirt);
     let customPrice = calculateCustomPrice(receivedData);
 
 
 
     if (selectedShirt) {
-        customPrice += selectedShirt.price;
+        console.log(selectedShirt);
+        customPrice += parseFloat(selectedShirt.price);
     }
  
     if (receivedData.shirtQuantity < 100) {

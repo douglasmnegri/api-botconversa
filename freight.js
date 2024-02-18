@@ -87,6 +87,11 @@
                         element.ShippingPrice = parseFloat(element.ShippingPrice) + 5;
                         element.ShippingPrice = element.ShippingPrice.toFixed(2);
                         break;
+
+                        case "JKM Logística":
+                        element.ShippingPrice = parseFloat(element.ShippingPrice) + 10;
+                        element.ShippingPrice = element.ShippingPrice.toFixed(2);
+                        break;
                     }
 
                     if (requestBody.Shirts > 300 && requestBody.Shirts < 501) {
