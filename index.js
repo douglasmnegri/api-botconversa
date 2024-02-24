@@ -17,6 +17,7 @@ app.post('/api/calculate', async (req, res) => {
     const postData = req.body;
     // Pass the postData to the runPrice module
     const priceResult = await calculateShirtPrice(postData);
+    console.log(priceResult);
 
     // Send the processed data and price back in the response
     res.json({
