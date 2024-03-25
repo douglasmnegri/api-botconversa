@@ -1,122 +1,162 @@
-    async function calculateQuote(req, res) {
-        try {
-            const requestBody = req.body;
-            const modifiedBodyContent = manageData(requestBody);
-            const shippingPrice = await fetchPrice(modifiedBodyContent);
-            console.log(shippingPrice);
-            const freightResult = generateString(shippingPrice, requestBody);
+async function calculateQuote(req, res) {
+  try {
+    const requestBody = req.body;
+    const modifiedBodyContent = manageData(requestBody)[0];
+    const totalExpressBodyContent = manageData(requestBody)[1];
 
-            // res.send(freightResult) so it's possible to read from BotConversa endpoint;
-            res.json({
-                freight: freightResult
-            });
+    const shippingPrice = await fetchPrice(modifiedBodyContent);
+    const totalExpressPrice = await fetchPrice(totalExpressBodyContent);
 
-        } catch (error) {
-            console.error('Error in calculateQuote:', error);
-            res.status(500).send('Internal Server Error');
-        }
+    const freightData = generateString(shippingPrice, requestBody);
+    const freightFilter = freightData.filter(
+      (entry) => entry && !entry.includes("Total Express")
+    );
+
+    const totalExpressResult = generateString(totalExpressPrice, requestBody);
+    const freightResult = freightFilter.concat(totalExpressResult).join("\n\n");
+
+    // res.send(freightResult) so it's possible to read from BotConversa endpoint;
+    res.json({
+      freight: freightResult,
+    });
+  } catch (error) {
+    console.error("Error in calculateQuote:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+function manageData(requestBody) {
+  let loadCapacity = Math.ceil(requestBody.Shirts / 500);
+  let priceTag = requestBody.ShipmentInvoiceValue.replace(/,.*/, "");
+  let buyerAddress = requestBody.RecipientCEP;
+  let shirtsWeight = requestBody.Shirts * 0.1;
+  let totalExpressWeight = requestBody.Shirts * 0.162;
+  let shirtQuantity = requestBody.Shirts;
+
+  const totalExpressBodyContent = {
+    SellerCEP: "88310670",
+    RecipientCEP: buyerAddress,
+    ShipmentInvoiceValue: priceTag,
+    ShippingServiceCode: "EXP",
+    ShippingItemArray: [
+      {
+        Height: 30,
+        Length: 30,
+        Quantity: loadCapacity,
+        Weight: totalExpressWeight,
+        Width: 30,
+        Shirts: shirtQuantity,
+      },
+    ],
+    RecipientCountry: "BR",
+  };
+  const modifiedBodyContent = {
+    SellerCEP: "88310670",
+    RecipientCEP: buyerAddress,
+    ShipmentInvoiceValue: priceTag,
+    ShippingServiceCode: null,
+    ShippingItemArray: [
+      {
+        Height: 30,
+        Length: 30,
+        Quantity: loadCapacity,
+        Weight: shirtsWeight,
+        Width: 30,
+        Shirts: shirtQuantity,
+      },
+    ],
+    RecipientCountry: "BR",
+  };
+
+  return [modifiedBodyContent, totalExpressBodyContent];
+}
+
+async function fetchPrice(modifiedBodyContent) {
+  const url = "https://api.frenet.com.br/shipping/quote";
+  const headers = {
+    accept: "application/json",
+    "content-type": "application/json",
+    token: process.env.FRENET_TOKEN,
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(modifiedBodyContent),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch price from Frenet API. Status: ${response.status}`
+      );
     }
 
-    function manageData(requestBody) {
-        let loadCapacity = Math.ceil(requestBody.Shirts / 500);
-        let priceTag = requestBody.ShipmentInvoiceValue.replace(/,.*/, '');
-        let buyerAddress = requestBody.RecipientCEP;
-        let shirtsWeight = requestBody.Shirts * 0.10;
-        let shirtQuantity = requestBody.Shirts;
-      
+    const responseBody = await response.json();
 
-        const modifiedBodyContent = {
-            "SellerCEP": "88310670",
-            "RecipientCEP": buyerAddress,
-            "ShipmentInvoiceValue": priceTag,
-            "ShippingServiceCode": null,
-            "ShippingItemArray": [
-            {
-                "Height": 30,
-                "Length": 30,
-                "Quantity": loadCapacity,
-                "Weight": shirtsWeight,
-                "Width": 30,
-                "Shirts": shirtQuantity
-            }
-            ],
-            "RecipientCountry": "BR"
-        }
+    return responseBody;
+  } catch (error) {
+    throw new Error("Failed to fetch price from Frenet API");
+  }
+}
 
-        return modifiedBodyContent;
+function generateString(shippingPrice, requestBody) {
+  try {
+    if (
+      !shippingPrice ||
+      !shippingPrice.ShippingSevicesArray ||
+      !Array.isArray(shippingPrice.ShippingSevicesArray)
+    ) {
+      throw new Error("Invalid or missing shippingPrice structure");
     }
 
-    async function fetchPrice(modifiedBodyContent) {
-        const url = 'https://api.frenet.com.br/shipping/quote';
-        const headers = {
-            accept: 'application/json',
-            'content-type': 'application/json',
-            token: process.env.FRENET_TOKEN
-        };
+    const mapBody = shippingPrice.ShippingSevicesArray.map((element) => {
+      if (element.ShippingPrice !== undefined) {
+        switch (element.ServiceDescription) {
+          case "Jadlog":
+          case "Bauer Express":
+            element.ShippingPrice = parseFloat(element.ShippingPrice) + 10;
+            element.ShippingPrice = element.ShippingPrice.toFixed(2);
+            break;
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(modifiedBodyContent)
-            });
+          case "JKM Logística":
+            element.ShippingPrice = parseFloat(element.ShippingPrice) + 10;
+            element.ShippingPrice = element.ShippingPrice.toFixed(2);
+            break;
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch price from Frenet API. Status: ${response.status}`);
-            }
+          case "Total Express":
+            element.ShippingPrice = parseFloat(element.ShippingPrice) + 20;
+            element.ShippingPrice = element.ShippingPrice.toFixed(2);
+            break;
 
-            const responseBody = await response.json();
-
-            return responseBody;
-        } catch (error) {
-            throw new Error('Failed to fetch price from Frenet API');
+          case "KR Logística":
+            element.ShippingPrice = parseFloat(element.ShippingPrice) + 15;
+            element.ShippingPrice = element.ShippingPrice.toFixed(2);
+            break;
         }
-    }
 
-    function generateString(shippingPrice, requestBody) {
-        try {
-            if (!shippingPrice || !shippingPrice.ShippingSevicesArray || !Array.isArray(shippingPrice.ShippingSevicesArray)) {
-                throw new Error('Invalid or missing shippingPrice structure');
-            }
-            
-            const mapBody = shippingPrice.ShippingSevicesArray.map((element) => {
-                if (element.ShippingPrice !== undefined) {
-                    switch(element.ServiceDescription) {
-                        case "Jadlog":
-                        case "Bauer Express":
-                        element.ShippingPrice = parseFloat(element.ShippingPrice) + 5;
-                        element.ShippingPrice = element.ShippingPrice.toFixed(2);
-                        break;
+        if (requestBody.Shirts > 300 && requestBody.Shirts < 501) {
+          switch (element.ServiceDescription) {
+            case "Bauer Express":
+              element.ShippingPrice = parseFloat(element.ShippingPrice) + 35;
+              element.ShippingPrice = element.ShippingPrice.toFixed(2);
+              break;
+          }
+        }
 
-                        case "JKM Logística":
-                        element.ShippingPrice = parseFloat(element.ShippingPrice) + 10;
-                        element.ShippingPrice = element.ShippingPrice.toFixed(2);
-                        break;
-                    }
-
-                    if (requestBody.Shirts > 300 && requestBody.Shirts < 501) {
-                        switch(element.ServiceDescription) {
-                            case "Bauer Express":
-                                element.ShippingPrice = parseFloat(element.ShippingPrice) + 35;
-                                element.ShippingPrice = element.ShippingPrice.toFixed(2);
-                                break;
-                        }
-                    }
-
-            return `Transportadora: ${element.Carrier}
+        return `Transportadora: ${element.Carrier}
             Preço: R$ ${element.ShippingPrice}
             Tempo de Transporte: ${element.DeliveryTime} dias úteis`;
-                }
-            });
+      }
+    });
 
-            return mapBody.join('\n\n');
-            
-        } catch (error) {
-            throw error;
-        }
-    }
+    return mapBody;
+    // return mapBody.join('\n\n');
+  } catch (error) {
+    throw error;
+  }
+}
 
-
-    module.exports = {
-        calculateQuote
-    };
+module.exports = {
+  calculateQuote,
+};
