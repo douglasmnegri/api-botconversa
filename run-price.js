@@ -121,47 +121,56 @@ async function shirtAndCustom(receivedData) {
   const colorFront = parseInt(receivedData.colorFront);
   const colorBack = parseInt(receivedData.colorBack);
 
-  // console.log(colorFront, colorBack);
-  // console.log(receivedData);
-
-  if (selectedShirt) {
-    customPrice += parseFloat(selectedShirt.price);
-  }
-
-  if (receivedData.shirtQuantity < 100) {
-    customPrice += 2;
-  }
-
-  const roundedCustom = Math.ceil(customPrice * 2) / 2;
-  const fixedCustom = (roundedCustom * receivedData.shirtQuantity)
-    .toFixed(2)
-    .replace(/\./g, ",");
-  const finalPrice = roundedCustom.toFixed(2).replace(/\./g, ",");
-  let directToFilm = "";
-
-  if (colorFront !== 0 && colorBack !== 0 && roundedCustom > 43) {
-    directToFilm = "Oferta43";
-  } else if (colorFront === 0 && colorBack > 0 && roundedCustom > 31) {
-    directToFilm = "Oferta31";
-  } else if (colorFront !== 0 && colorBack === 0 && roundedCustom > 31) {
-    directToFilm = "Oferta31";
-  } else {
-    directToFilm = null;
-  }
-
-  const shirtsPriceCreditCard =
-    receivedData.shirtQuantity >= 100 ? customPrice += 2 : customPrice;
-  const fixedCreditCardPrice = Math.ceil(shirtsPriceCreditCard * 2) / 2;
-  const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
-  const creditCardFinalPrice = totalPrice.toFixed(2).replace(/\./g, ",");
-  let installmentPrice, numberOfInstallments;
-  for (let i = 10; i > 0; i--) {
-    numberOfInstallments = i;
-    installmentPrice = totalPrice / numberOfInstallments;
-    if (installmentPrice >= 100) {
-      break;
+  function normalPrice() {
+    if (selectedShirt) {
+      customPrice += parseFloat(selectedShirt.price);
     }
+
+    if (receivedData.shirtQuantity < 100) {
+      customPrice += 2;
+    }
+
+    const roundedCustom = Math.ceil(customPrice * 2) / 2;
+    const fixedCustom = (roundedCustom * receivedData.shirtQuantity)
+      .toFixed(2)
+      .replace(/\./g, ",");
+    const finalPrice = roundedCustom.toFixed(2).replace(/\./g, ",");
+    let directToFilm = "";
+
+    if (colorFront !== 0 && colorBack !== 0 && roundedCustom > 43) {
+      directToFilm = "Oferta43";
+    } else if (colorFront === 0 && colorBack > 0 && roundedCustom > 31) {
+      directToFilm = "Oferta31";
+    } else if (colorFront !== 0 && colorBack === 0 && roundedCustom > 31) {
+      directToFilm = "Oferta31";
+    } else {
+      directToFilm = null;
+    }
+    return [finalPrice, fixedCustom, directToFilm];
   }
+
+  const [finalPrice, fixedCustom, directToFilm] = normalPrice();
+
+  function creditCardPrice() {
+    const shirtsPriceCreditCard =
+      receivedData.shirtQuantity >= 100 ? (customPrice += 2) : customPrice;
+    const fixedCreditCardPrice = Math.ceil(shirtsPriceCreditCard * 2) / 2;
+    const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
+    const creditCardFinalPrice = totalPrice.toFixed(2).replace(/\./g, ",");
+    let installmentPrice, numberOfInstallments;
+    for (let i = 10; i > 0; i--) {
+      numberOfInstallments = i;
+      installmentPrice = totalPrice / numberOfInstallments;
+      if (installmentPrice >= 100) {
+        break;
+      }
+    }
+
+    return [numberOfInstallments, installmentPrice, creditCardFinalPrice];
+  }
+
+  const [numberOfInstallments, installmentPrice, creditCardFinalPrice] =
+    creditCardPrice();
 
   return [
     finalPrice,
