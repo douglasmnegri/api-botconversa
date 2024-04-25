@@ -4,20 +4,20 @@ console.log(process.env)
 const express = require('express');
 const app = express();
 const port = 3001;
+const {router} = require('./configs.js');
 
-const {calculateShirtPrice} = require('./run-price');
+const {calculateShirtPrice} = require('./run-price.js');
 const {calculateQuote} = require('./freight.js');
 const {getCEP} = require('./check-cep.js');
 
 app.use(express.json());
+app.use('/api/config', router);
 
-// Route handler for POST requests at /api/calculate
 app.post('/api/calculate', async (req, res) => {
   try {
     const postData = req.body;
-    // Pass the postData to the runPrice module
     const priceResult = await calculateShirtPrice(postData);
-    console.log(priceResult);
+    console.log(priceResult[0], priceResult[1], priceResult[2]);
 
     // Send the processed data and price back in the response
     res.json({

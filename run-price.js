@@ -1,7 +1,9 @@
 // run-price.js
-const { development: dbConfig } = require("./knexfile");
 const knex = require("knex");
-const dbConnection = knex(dbConfig);
+const config = require("./knexfile");
+const env =
+  process.env.NODE_ENV !== "production" ? "development" : "production";
+const dbConnection = knex(config[env]);
 const SETUP = 30;
 const PROFIT = 0.6;
 
@@ -9,16 +11,6 @@ async function getPrice(id) {
   const shirts = await dbConnection("shirts").where("id", id).first();
   return shirts;
 }
-
-const shirtsData = [
-  { id: 102, name: "Camiseta de Algodão Branca", price: 10.5 },
-  { id: 103, name: "Camiseta de Algodão Colorida", price: 12.5 },
-  { id: 104, name: "Camiseta Sublime Básica Branca", price: 8.5 },
-  { id: 105, name: "Camiseta Sublime Premium Branca", price: 9 },
-  { id: 106, name: "Camiseta Sublime Premium Colorida", price: 10 },
-  { id: 107, name: "Camiseta de Algodão Penteado Branca", price: 19.5 },
-  { id: 108, name: "Camiseta de Algodão Penteado Preta", price: 21 },
-];
 
 function customization(color) {
   let screen = 1;
@@ -129,11 +121,10 @@ async function shirtAndCustom(receivedData) {
   const colorFront = parseInt(receivedData.colorFront);
   const colorBack = parseInt(receivedData.colorBack);
 
-  console.log(colorFront, colorBack);
-  console.log(receivedData);
+  // console.log(colorFront, colorBack);
+  // console.log(receivedData);
 
   if (selectedShirt) {
-    console.log(selectedShirt);
     customPrice += parseFloat(selectedShirt.price);
   }
 
@@ -152,14 +143,34 @@ async function shirtAndCustom(receivedData) {
     directToFilm = "Oferta43";
   } else if (colorFront === 0 && colorBack > 0 && roundedCustom > 31) {
     directToFilm = "Oferta31";
-  }
-  else if (colorFront !== 0 && colorBack === 0 && roundedCustom > 31) {
+  } else if (colorFront !== 0 && colorBack === 0 && roundedCustom > 31) {
     directToFilm = "Oferta31";
   } else {
     directToFilm = null;
   }
 
-  return [finalPrice, fixedCustom, directToFilm];
+  const shirtsPriceCreditCard =
+    receivedData.shirtQuantity >= 100 ? customPrice += 2 : customPrice;
+  const fixedCreditCardPrice = Math.ceil(shirtsPriceCreditCard * 2) / 2;
+  const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
+  const creditCardFinalPrice = totalPrice.toFixed(2).replace(/\./g, ",");
+  let installmentPrice, numberOfInstallments;
+  for (let i = 10; i > 0; i--) {
+    numberOfInstallments = i;
+    installmentPrice = totalPrice / numberOfInstallments;
+    if (installmentPrice > 100) {
+      break;
+    }
+  }
+
+  return [
+    finalPrice,
+    fixedCustom,
+    directToFilm,
+    numberOfInstallments,
+    installmentPrice,
+    creditCardFinalPrice,
+  ];
 }
 
 function calculateShirtPrice(receivedData) {
