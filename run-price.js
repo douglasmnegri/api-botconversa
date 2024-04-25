@@ -158,7 +158,7 @@ async function shirtAndCustom(receivedData) {
   for (let i = 10; i > 0; i--) {
     numberOfInstallments = i;
     installmentPrice = totalPrice / numberOfInstallments;
-    if (installmentPrice > 100) {
+    if (installmentPrice >= 100) {
       break;
     }
   }
