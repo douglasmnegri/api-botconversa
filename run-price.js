@@ -1,4 +1,5 @@
 // run-price.js
+const Dinero = require("dinero.js");
 const knex = require("knex");
 const config = require("./knexfile");
 const env =
@@ -126,14 +127,16 @@ async function shirtAndCustom(receivedData) {
       customPrice += parseFloat(selectedShirt.price);
     }
 
-    if (receivedData.shirtQuantity < 100) {
-      customPrice += 2;
+    let priceOverHundred = customPrice;
+    if (receivedData.shirtQuantity >= 100) {
+      priceOverHundred -= 2;
     }
 
-    const roundedCustom = Math.ceil(customPrice * 2) / 2;
-    const fixedCustom = (roundedCustom * receivedData.shirtQuantity)
-      .toFixed(2)
-      .replace(/\./g, ",");
+    const roundedCustom = Math.ceil(priceOverHundred * 2) / 2;
+    const fixedCustom = roundedCustom * receivedData.shirtQuantity * 100;
+    const finalCustom = Dinero({ amount: fixedCustom })
+      .setLocale("pt-BR")
+      .toFormat("0,0.00");
     const finalPrice = roundedCustom.toFixed(2).replace(/\./g, ",");
     let directToFilm = "";
 
@@ -146,17 +149,19 @@ async function shirtAndCustom(receivedData) {
     } else {
       directToFilm = null;
     }
-    return [finalPrice, fixedCustom, directToFilm];
+    return [finalPrice, finalCustom, directToFilm];
   }
 
-  const [finalPrice, fixedCustom, directToFilm] = normalPrice();
+  const [finalPrice, finalCustom, directToFilm] = normalPrice();
 
   function creditCardPrice() {
-    const shirtsPriceCreditCard =
-      receivedData.shirtQuantity >= 100 ? (customPrice += 2) : customPrice;
-    const fixedCreditCardPrice = Math.ceil(shirtsPriceCreditCard * 2) / 2;
+    const fixedCreditCardPrice = Math.ceil(customPrice * 2) / 2;
     const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
-    const creditCardFinalPrice = totalPrice.toFixed(2).replace(/\./g, ",");
+    const fixedPrice = totalPrice * 100;
+    const creditCardFinalPrice = Dinero({ amount: fixedPrice })
+      .setLocale("pt-BR")
+      .toFormat("0,0.00");
+    console.log(fixedPrice, creditCardFinalPrice);
     let installmentPrice, numberOfInstallments;
     for (let i = 10; i > 0; i--) {
       numberOfInstallments = i;
@@ -166,7 +171,11 @@ async function shirtAndCustom(receivedData) {
       }
     }
 
-    return [numberOfInstallments, installmentPrice, creditCardFinalPrice];
+    const installmentPriceFixed = installmentPrice * 100;
+    const installmentValue = Dinero({ amount: installmentPriceFixed })
+    .setLocale("pt-BR")
+    .toFormat("0,0.00");
+    return [numberOfInstallments, installmentValue, creditCardFinalPrice];
   }
 
   const [numberOfInstallments, installmentPrice, creditCardFinalPrice] =
@@ -174,7 +183,7 @@ async function shirtAndCustom(receivedData) {
 
   return [
     finalPrice,
-    fixedCustom,
+    finalCustom,
     directToFilm,
     numberOfInstallments,
     installmentPrice,
