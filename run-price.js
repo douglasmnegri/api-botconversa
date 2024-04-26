@@ -5,17 +5,28 @@ const config = require("./knexfile");
 const env =
   process.env.NODE_ENV !== "production" ? "development" : "production";
 const dbConnection = knex(config[env]);
-const SETUP = 30;
-const PROFIT = 0.6;
+// const SETUP = 30;
+// const PROFIT = 0.6;
 
 async function getPrice(id) {
   const shirts = await dbConnection("shirts").where("id", id).first();
   return shirts;
 }
 
-function customization(color) {
-  let screen = 1;
-  let print = 45;
+async function getSilkCosts() {
+  let silkCosts = await dbConnection("silkScreenCosts")
+    .orderBy("id", "desc")
+    .first();
+  return silkCosts;
+}
+
+async function customization(color) {
+  let customCosts = await getSilkCosts();
+  let print = customCosts.print;
+  let screen = parseFloat(customCosts.screen); // Parse screen as a float
+
+  console.log("Print:", print);
+  console.log("Screen:", screen);
 
   for (let i = 0; i < color - 1; i++) {
     print += 45;
@@ -51,33 +62,47 @@ function customization(color) {
   return { print, screen };
 }
 
-const roundAndProfit = (print, screen) => {
-  const profitPrint = print / PROFIT;
-  const profitScreen = screen / PROFIT;
-
-  const roundPrint = Math.round(profitPrint * 100) / 100;
-  const roundScreen = Math.round(profitScreen * 100) / 100;
-
-  return [roundPrint, roundScreen];
-};
-
-const customFront = (colorFront) => {
+const customFront = async (colorFront) => {
   if (colorFront != 0) {
-    const { print, screen } = customization(colorFront);
+    const { print, screen } = await customization(colorFront);
+    console.log("Print:", print);
+    console.log("Screen:", screen);
     return roundAndProfit(print, screen);
   } else {
     return [0, 0];
   }
 };
 
-const customBack = (colorBack) => {
+const customBack = async (colorBack) => {
   if (colorBack != 0) {
-    const { print, screen } = customization(colorBack);
+    const { print, screen } = await customization(colorBack);
+    console.log("Print:", print);
+    console.log("Screen:", screen);
     return roundAndProfit(print, screen);
   } else {
     return [0, 0];
   }
 };
+
+async function roundAndProfit(print, screen) {
+  try {
+    const customCosts = await getSilkCosts();
+    const profit = customCosts.profit;
+
+    const profitPrint = print / profit;
+    const profitScreen = screen / profit;
+
+    const roundPrint = Math.round(profitPrint * 100) / 100;
+    const roundScreen = Math.round(profitScreen * 100) / 100;
+
+    console.log("Round Print:", roundPrint);
+    console.log("Round Screen:", roundScreen);
+    return [roundPrint, roundScreen];
+  } catch (error) {
+    console.error("Error in roundAndProfit function:", error);
+    throw error;
+  }
+}
 
 function arrayEquals(arr1, arr2) {
   return (
@@ -88,24 +113,30 @@ function arrayEquals(arr1, arr2) {
   );
 }
 
-function calculateCustomPrice(receivedData) {
-  const frontCustomization = customFront(receivedData.colorFront);
-  const backCustomization = customBack(receivedData.colorBack);
+async function calculateCustomPrice(receivedData) {
+  const frontCustomization = await customFront(receivedData.colorFront);
+  const backCustomization = await customBack(receivedData.colorBack);
   let customPriceFront = 0;
   let customPriceBack = 0;
+
+  console.log("Front Custom:", frontCustomization);
+  console.log("Back Custom:", backCustomization);
+
+  const customCosts = await getSilkCosts();
+  const setup = customCosts.setup;
 
   if (!arrayEquals(frontCustomization, [0, 0])) {
     customPriceFront =
       frontCustomization[1] +
       frontCustomization[0] / receivedData.shirtQuantity +
-      SETUP / receivedData.shirtQuantity;
+      setup / receivedData.shirtQuantity;
   }
 
   if (!arrayEquals(backCustomization, [0, 0])) {
     customPriceBack =
       backCustomization[1] +
       backCustomization[0] / receivedData.shirtQuantity +
-      SETUP / receivedData.shirtQuantity;
+      setup / receivedData.shirtQuantity;
   }
 
   return customPriceBack + customPriceFront;
@@ -118,7 +149,7 @@ async function shirtAndCustom(receivedData) {
   }
 
   let selectedShirt = await getPrice(receivedData.shirtID);
-  let customPrice = calculateCustomPrice(receivedData);
+  let customPrice = await calculateCustomPrice(receivedData);
   const colorFront = parseInt(receivedData.colorFront);
   const colorBack = parseInt(receivedData.colorBack);
 
@@ -134,6 +165,7 @@ async function shirtAndCustom(receivedData) {
 
     const roundedCustom = Math.ceil(priceOverHundred * 2) / 2;
     const fixedCustom = roundedCustom * receivedData.shirtQuantity * 100;
+
     const finalCustom = Dinero({ amount: fixedCustom })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
@@ -149,6 +181,7 @@ async function shirtAndCustom(receivedData) {
     } else {
       directToFilm = null;
     }
+
     return [finalPrice, finalCustom, directToFilm];
   }
 
@@ -173,8 +206,8 @@ async function shirtAndCustom(receivedData) {
 
     const installmentPriceFixed = installmentPrice * 100;
     const installmentValue = Dinero({ amount: installmentPriceFixed })
-    .setLocale("pt-BR")
-    .toFormat("0,0.00");
+      .setLocale("pt-BR")
+      .toFormat("0,0.00");
     return [numberOfInstallments, installmentValue, creditCardFinalPrice];
   }
 
