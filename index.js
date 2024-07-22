@@ -16,6 +16,7 @@ app.use('/api/config', router);
 app.post('/api/calculate', async (req, res) => {
   try {
     const postData = req.body;
+    console.log(postData);
     const priceResult = await calculateShirtPrice(postData);
     console.log(priceResult[0], priceResult[1], priceResult[2]);
 
