@@ -13,6 +13,7 @@ exports.seed = async function(knex) {
     { id: 108, name: "Camiseta de Algodão Penteado Preta", price: 23 }
   ];
 
+  
   for (const shirt of shirts) {
     const existingShirt = await knex('shirts').where('id', shirt.id).first();
 
