@@ -126,7 +126,7 @@ async function calculateCustomPrice(receivedData) {
 
   if (!arrayEquals(frontCustomization, [0, 0])) {
     if (receivedData.shirtID == 108) {
-      customPriceFront = 3;
+      customPriceFront = 4;
     } else {
       customPriceFront =
         frontCustomization[1] +
@@ -184,24 +184,30 @@ async function shirtAndCustom(receivedData) {
       let priceOne = 0;
       let priceTwo = 0;
 
-      switch (code = parseInt(code)) {
+      switch (parseInt(code)) {
         case 108:
-          priceOne = 42;
-          priceTwo = 42;
+          priceOne = 42.0;
+          priceTwo = 42.0;
           break;
         case 103:
           priceOne = 27.5;
           priceTwo = 40.5;
           break;
         case 107:
-          priceOne = 34;
-          priceTwo = 47;
+          priceOne = 34.0;
+          priceTwo = 47.0;
           break;
+        default:
+          return null; 
       }
 
-      if ((colorFront != 0 && colorBack != 0) && roundedCustom > priceTwo) {
+      if (colorFront != 0 && colorBack != 0 && roundedCustom > priceTwo) {
         directToFilm = priceTwo;
-      } else if ((colorFront != 0 || colorBack != 0) && roundedCustom > priceOne) {
+      } else if (
+        ((colorFront != 0 && colorBack == 0) ||
+          (colorFront == 0 && colorBack != 0)) &&
+        roundedCustom > priceOne
+      ) {
         directToFilm = priceOne;
       } else {
         directToFilm = null;
@@ -210,7 +216,10 @@ async function shirtAndCustom(receivedData) {
       return directToFilm;
     }
 
-    const DTF = directToFilm(receivedData.shirtID);
+    let DTF = directToFilm(receivedData.shirtID);
+    if (DTF != null) {
+      DTF = DTF.toFixed(2).replace(/\./g, ",");
+    }
 
     return [finalPrice, finalCustom, DTF];
   }
