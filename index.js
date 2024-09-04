@@ -39,6 +39,8 @@ app.post("/api/getcep", getCEP);
 
 app.post("/api/tiny", printOrder);
 
+app.post("/api/pdf");
+
 app.get("/api/health", (req, res) => {
   // Handle the POST request
   console.log("Message Received (GET)");
