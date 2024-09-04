@@ -10,7 +10,6 @@ const dbConnection = knex(config[env]);
 
 async function getPrice(id) {
   const shirts = await dbConnection("shirts").where("id", id).first();
-  console.log(shirts);
   return shirts;
 }
 
@@ -19,7 +18,6 @@ async function getSilkCosts() {
     let silkCosts = await dbConnection("silkScreenCosts")
       .orderBy("id", "desc")
       .first();
-    console.log(silkCosts);
     return silkCosts;
   } catch (error) {
     console.error("Deu erro", error);
@@ -30,7 +28,6 @@ async function customization(color) {
   let customCosts = await getSilkCosts();
   let print = parseFloat(customCosts.print);
   let screen = parseFloat(customCosts.screen); // Parse screen as a float
-  console.log("Print Before: ", print);
 
   for (let i = 0; i < color - 1; i++) {
     print += 45;
@@ -63,7 +60,6 @@ async function customization(color) {
       break;
   }
 
-  console.log("Print After: ", print);
   return { print, screen };
 }
 
@@ -98,8 +94,6 @@ const customFront = async (colorFront) => {
 const customBack = async (colorBack) => {
   if (colorBack != 0) {
     const { print, screen } = await customization(colorBack);
-    console.log("Print:", print);
-    console.log("Screen:", screen);
     return roundAndProfit(print, screen);
   } else {
     return [0, 0];
@@ -157,11 +151,8 @@ async function shirtAndCustom(receivedData) {
   const colorBack = parseInt(receivedData.colorBack);
 
   function normalPrice() {
-    if (selectedShirt) {
-      customPrice += parseFloat(selectedShirt.price);
-    }
+    let priceOverHundred = customPrice + parseFloat(selectedShirt.price);
 
-    let priceOverHundred = customPrice;
     if (receivedData.shirtQuantity >= 100) {
       if (receivedData.shirtID == 108) {
         priceOverHundred -= 4;
@@ -170,15 +161,6 @@ async function shirtAndCustom(receivedData) {
       }
     }
 
-    const roundedCustom = Math.ceil(priceOverHundred * 2) / 2;
-    const fixedCustom = roundedCustom * receivedData.shirtQuantity * 100;
-
-    const finalCustom = Dinero({ amount: fixedCustom })
-      .setLocale("pt-BR")
-      .toFormat("0,0.00");
-    console.log("Fixed Custom", fixedCustom);
-    const finalPrice = roundedCustom.toFixed(2).replace(/\./g, ",");
-
     function directToFilm(code) {
       let directToFilm = "";
       let priceOne = 0;
@@ -186,6 +168,7 @@ async function shirtAndCustom(receivedData) {
 
       switch (parseInt(code)) {
         case 108:
+        case 106:
           priceOne = 42.0;
           priceTwo = 42.0;
           break;
@@ -198,15 +181,14 @@ async function shirtAndCustom(receivedData) {
           priceTwo = 47.0;
           break;
         default:
-          return null; 
+          return null;
       }
 
-      if (colorFront != 0 && colorBack != 0 && roundedCustom > priceTwo) {
+      if (colorFront != 0 && colorBack != 0) {
         directToFilm = priceTwo;
       } else if (
-        ((colorFront != 0 && colorBack == 0) ||
-          (colorFront == 0 && colorBack != 0)) &&
-        roundedCustom > priceOne
+        (colorFront != 0 && colorBack == 0) ||
+        (colorFront == 0 && colorBack != 0)
       ) {
         directToFilm = priceOne;
       } else {
@@ -216,26 +198,44 @@ async function shirtAndCustom(receivedData) {
       return directToFilm;
     }
 
-    let DTF = directToFilm(receivedData.shirtID);
-    if (DTF != null) {
-      DTF = DTF.toFixed(2).replace(/\./g, ",");
-    }
-
-    return [finalPrice, finalCustom, DTF];
+    const DTF = directToFilm(receivedData.shirtID);
+    const fixedPrice = Math.ceil(priceOverHundred * 2) / 2;
+    return [fixedPrice, DTF];
   }
 
-  const [finalPrice, finalCustom, directToFilm] = normalPrice();
+  function getFinalPrice() {
+    const [fixedPrice, DTF] = normalPrice();
+    const checkForValue = fixedPrice > DTF ? DTF : fixedPrice;
+    const fixedCustom = checkForValue * receivedData.shirtQuantity;
+
+    const finalPriceTotal = Dinero({ amount: fixedCustom * 100 })
+      .setLocale("pt-BR")
+      .toFormat("0,0.00");
+    const unitPrice = checkForValue.toFixed(2).replace(/\./g, ",");
+
+    return [unitPrice, finalPriceTotal, checkForValue];
+  }
+
+  const [unitPrice, finalPriceTotal, checkForValue] = getFinalPrice();
 
   function creditCardPrice() {
-    const fixedCreditCardPrice = Math.ceil(customPrice * 2) / 2;
-    const totalPrice = Math.round(
-      fixedCreditCardPrice * receivedData.shirtQuantity
-    ); // Ensure totalPrice is an integer
-    const fixedPrice = Math.round(totalPrice * 100); // Ensure fixedPrice is an integer
-    console.log("Fixed Price: ", fixedPrice, "Total Price: ", totalPrice);
+    let fixedCreditCardPrice = checkForValue;
+    if (receivedData.shirtQuantity >= 100) {
+      if (receivedData.shirtID == 108) {
+        fixedCreditCardPrice += 4;
+      } else {
+        fixedCreditCardPrice += 2;
+      }
+    }
+
+    const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
+
+    const fixedPrice = totalPrice * 100;
     const creditCardFinalPrice = Dinero({ amount: fixedPrice })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
+
+    console.log("FIXEDPRICE", fixedPrice);
 
     let installmentPrice, numberOfInstallments;
     for (let i = 10; i > 0; i--) {
@@ -257,9 +257,8 @@ async function shirtAndCustom(receivedData) {
     creditCardPrice();
 
   return [
-    finalPrice,
-    finalCustom,
-    directToFilm,
+    unitPrice,
+    finalPriceTotal,
     numberOfInstallments,
     installmentPrice,
     creditCardFinalPrice,

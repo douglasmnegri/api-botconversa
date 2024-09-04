@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 150px;
+}
+
+.company-info p {
+    margin: 0;
+    font-size: 12px;
+    text-align: right;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.items table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.items table, .items th, .items td {
+    border: 1px solid #ddd;
+}
+
+
+.items th, .items td {
+    padding: 8px;
+    text-align: center;
+}
+
+.total {
+    margin-bottom: 20px;
+}
+
+.total p {
+    margin: 5px 0;
+}
+
+.conditions, .general-conditions, .observations {
+    margin-bottom: 20px;
+    border: solid black 1px;
+    border-radius: 5px;
+    padding-left: 0.5em;
+}
+
+.conditions h3, .general-conditions h3, .observations h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+.footer {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.footer p {
+    margin: 0;
+}
