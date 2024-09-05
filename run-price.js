@@ -230,13 +230,17 @@ async function shirtAndCustom(receivedData) {
 
     const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
 
-    const fixedPrice = totalPrice * 100;
-    const creditCardFinalPrice = Dinero({ amount: fixedPrice })
+    
+    const creditCardFinalPrice = Dinero({ amount: totalPrice * 100 })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
 
-    console.log("FIXEDPRICE", fixedPrice);
+    
+    const creditCardUnitPrice = Dinero({ amount: fixedCreditCardPrice * 100 })
+      .setLocale("pt-BR")
+      .toFormat("0,0.00");
 
+    console.log(creditCardUnitPrice);
     let installmentPrice, numberOfInstallments;
     for (let i = 10; i > 0; i--) {
       numberOfInstallments = i;
@@ -250,10 +254,10 @@ async function shirtAndCustom(receivedData) {
     const installmentValue = Dinero({ amount: installmentPriceFixed })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
-    return [numberOfInstallments, installmentValue, creditCardFinalPrice];
+    return [numberOfInstallments, installmentValue, creditCardFinalPrice, creditCardUnitPrice];
   }
 
-  const [numberOfInstallments, installmentPrice, creditCardFinalPrice] =
+  const [numberOfInstallments, installmentPrice, creditCardFinalPrice, creditCardUnitPrice] =
     creditCardPrice();
 
   return [
@@ -262,6 +266,7 @@ async function shirtAndCustom(receivedData) {
     numberOfInstallments,
     installmentPrice,
     creditCardFinalPrice,
+    creditCardUnitPrice
   ];
 }
 
