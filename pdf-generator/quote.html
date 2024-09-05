@@ -33,118 +33,124 @@
       <h2>Proposta Comercial Nº 3762</h2>
 
       <div class="items">
-        <table>
+        <table class="product-price-table">
+          <h3>Método de Pagamento: PIX ou Depósito Bancário</h3>
           <thead>
             <tr>
-              <th>Nº</th>
-              <th>Item</th>
-              <th>Cód (SKU)</th>
-              <th>Qtd</th>
-              <th>Un</th>
-              <th>Preço un</th>
-              <th>Total</th>
+              <th class="item-id">Nº</th>
+              <th class="item-name">Item</th>
+              <th class="item-quantity">Qtd</th>
+              <th class="unit-price">Preço un</th>
+              <th class="total-price">Total</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>1</td>
-              <td>Camiseta Adulto 100% Algodão</td>
-              <td>3660</td>
-              <td>1,00</td>
-              <td>UN</td>
-              <td>1,00</td>
-              <td>1,00</td>
+              <td>Camiseta Adulto 100% Algodão Vórtex</td>
+              <td>100</td>
+              <td class="unit-content">R$ 25,00</td>
+              <td class="total-content">R$ 2.500,00</td>
             </tr>
           </tbody>
         </table>
-        <table>
+        <table id="credit-card-table" class="product-price-table">
+          <h3>Método de Pagamento: Cartão de Crédito</h3>
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Frete</th>
-              <th>Total da Proposta</th>
+              <th class="item-id">Nº</th>
+              <th class="item-name">Item</th>
+              <th class="item-quantity">Qtd</th>
+              <th class="unit-price">Preço un</th>
+              <th class="total-price">Total</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th>25/10/1995</th>
-              <th>220</th>
-              <th>440</th>
+              <td>1</td>
+              <td>Camiseta Adulto 100% Algodão Vórtex</td>
+              <td>100</td>
+              <td class="unit-content">R$ 27,00</td>
+              <td class="credit-card-content">R$ 2.700,00</td>
             </tr>
           </tbody>
+
+          <table id="installments-table">
+            <thead>
+              <tr>
+                <th>Parcelas</th>
+                <th>Valor da Parcela</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="installment-content">Em até 10x sem juros</td>
+                <td class="installment-price-content">R$ 270,00</td>
+              </tr>
+            </tbody>
+          </table>
         </table>
       </div>
-      <div class="conditions">
-        <h3>Condições comerciais</h3>
-        <p>a) Os tamanhos poderão ser definidos em P, M, G, GG e XGG.</p>
-        <p>
-          <b>#Importante:</b> O tamanho XGG possui R$ 1,00 de acréscimo por peça
-        </p>
-        <p>
-          b) Caso tenha interesse em prosseguir com a negociação, por gentileza,
-          informe seu CEP + CPF ou CNPJ. Assim, poderemos calcular o valor e o
-          prazo de transporte do seu pedido.
-        </p>
-        <p>
-          c) Valor total com <b>desconto especial aplicado</b>, considerando
-          pagamento via depósito antecipado ou PIX. <br />
-          <b>Chave PIX - CNPJ:</b> 08.328.406/0001-00
-        </p>
-        <p>
-          d) Se optar por pagamento via cartão de crédito, terá acréscimo de R$
-          2,00 por peça. <br />
-          Podendo ser parcelado até 10x sem juros, com parcela mínima de R$
-          100,00
-        </p>
-        <p>e) Atenção: não indenizamos peças personalizadas por terceiros.</p>
+      <div>
+        <h3>Condições Comerciais</h3>
+        <div class="commercial-conditions">
+          <p>
+            a) Os tamanhos poderão ser definidos em P, M, G, GG e XGG.
+            <br /><b>#Importante:</b> O tamanho XGG possui R$ 1,00 de acréscimo
+            por peça
+          </p>
+
+          <p>
+            b) Caso tenha interesse em prosseguir com a negociação, por
+            gentileza, informe seu CEP + CPF ou CNPJ. Assim, poderemos calcular
+            o valor e o prazo de transporte do seu pedido.
+          </p>
+          <p>c) Atenção: não indenizamos peças personalizadas por terceiros.</p>
+        </div>
       </div>
 
-      <div class="general-conditions items">
-        <table>
-          <thead>
-            <tr>
-              <th>Condições Gerais</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Prazo de Entrega</td>
-              <td>
-                Até 15 dias úteis após a confirmação do pagamento + tempo de
-                transporte.
-              </td>
-            </tr>
-            <tr>
-              <td>Validade da Proposta</td>
-              <td>5 dias corridos.</td>
-            </tr>
-            <tr>
-              <td>Forma de Envio</td>
-              <td>Frete FOB</td>
-            </tr>
-          </tbody>
-        </table>
-
+      <div>
+        <h3>Condições Gerais</h3>
+        <div class="general-conditions items">
+          <table>
+            <tbody>
+              <tr>
+                <td id="delivery-time">Prazo de Entrega</td>
+                <td>
+                  Até 15 dias úteis após a confirmação do pagamento + tempo de
+                  transporte.
+                </td>
+              </tr>
+              <tr>
+                <td id="shipment">Forma de Envio</td>
+                <td>Frete a combinar (FOB)</td>
+              </tr>
+              <tr>
+                <td id="proposal">Validade da Proposta</td>
+                <td>5 dias corridos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <div class="observations">
+      <div>
         <h3>Observações</h3>
-        <p>
-          - Serigrafia (máximo de 28x35cm) na Frente + Costas em 01 cor,
-          conforme arquivo a ser enviado em vetor pelo cliente.
-        </p>
-        <p>
-          - ATENÇÃO! É necessário informar a medida (em centímetros) das artes a
-          serem estampadas.
-        </p>
-        <p>- Cotação Nº</p>
-      </div>
-
-      <div class="footer">
-        <p>Atenciosamente,</p>
-        <p>Equipe de Vendas</p>
+        <div class="observations">
+          <p>
+            - Serigrafia (máximo de 28x35cm) na Frente + Costas em 01 cor,
+            conforme arquivo a ser enviado em vetor pelo cliente.
+          </p>
+          <p>
+            - ATENÇÃO! É necessário informar a medida (em centímetros) das artes
+            a serem estampadas.
+          </p>
+        </div>
+        <div class="footer">
+          <p>Atenciosamente,</p>
+          <p>Equipe de Vendas</p>
+        </div>
       </div>
     </div>
+    <script src="pdf.js"></script>
   </body>
 </html>
