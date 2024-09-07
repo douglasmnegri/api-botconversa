@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Proposta Comercial</title>
-    <link rel="stylesheet" href="pdf.css" />
+    <link rel="stylesheet" href="./pdf.css" />
   </head>
   <body>
     <div class="container">
-      <img src="../images/symbol-click.svg" alt="symbol click" id="watermark">
+      <img src="{{symbolClick}}" alt="symbol click" id="watermark">
       <div class="header">
         <img
-          src="../images/logo-click.svg"
+          src="{{logoClick}}"
           alt="Click Camisetas"
           class="logo"
         />
@@ -49,8 +49,8 @@
               <td>1</td>
               <td>Camiseta de Algodão Vórtex (Sergrafia Frente 01 Cor + Costas 02 Cores)</td>
               <td>100</td>
-              <td class="unit-cash-content">R$ 25,00</td>
-              <td class="total-content">R$ 2.500,00</td>
+              <td class="unit-cash-content">R$ {{unitCostCash}}</td>
+              <td class="total-content">R$ {{finalCost}}</td>
             </tr>
           </tbody>
         </table>
@@ -70,8 +70,8 @@
               <td>1</td>
               <td>Camiseta de Algodão Vórtex (Sergrafia Frente 01 Cor + Costas 02 Cores)</td>
               <td>100</td>
-              <td class="unit-card-content">R$ 27,00</td>
-              <td class="credit-card-content">R$ 2.700,00</td>
+              <td class="unit-card-content">R$ {{unitCostCard}}</td>
+              <td class="credit-card-content">R$ {{creditCardPrice}}</td>
             </tr>
           </tbody>
 
@@ -84,8 +84,8 @@
             </thead>
             <tbody>
               <tr>
-                <td class="installment-content">Em até 10x sem juros</td>
-                <td class="installment-price-content">R$ 270,00</td>
+                <td class="installment-content">Em até {{installmentNumber}}x sem juros</td>
+                <td class="installment-price-content">R$ {{installmentPrice}}</td>
               </tr>
             </tbody>
           </table>

@@ -9,6 +9,7 @@ const { router } = require("./configs.js");
 const { calculateShirtPrice } = require("./run-price.js");
 const { calculateQuote } = require("./freight.js");
 const { getCEP } = require("./check-cep.js");
+const { getProposal } = require("./pdf-generator/pdf.js");
 
 app.use(express.json());
 app.use("/api/config", router);
@@ -27,6 +28,32 @@ app.post("/api/calculate", async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/generate-pdf", async (req, res) => {
+  try {
+    const postData = req.body;
+    const priceResult = await calculateShirtPrice(postData);
+    console.log(priceResult);
+    const pdfBuffer = await getProposal(
+      priceResult[0],
+      priceResult[1],
+      priceResult[2],
+      priceResult[3],
+      priceResult[4],
+      priceResult[5]
+    );
+
+    console.log(pdfBuffer);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=proposal.pdf");
+
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
