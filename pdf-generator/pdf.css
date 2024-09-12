@@ -27,7 +27,7 @@ h3 {
   margin-bottom: 20px;
 }
 .logo {
-  width: 150px;
+  overflow: hidden;
 }
 
 .company-info p {
@@ -148,7 +148,6 @@ h2 {
   margin-bottom: 2.5em;
 }
 #watermark {
-  width: 250px;
   position: fixed;
   opacity: 0.1;
   z-index: 99;

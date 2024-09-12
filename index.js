@@ -36,17 +36,16 @@ app.post("/api/generate-pdf", async (req, res) => {
   try {
     const postData = req.body;
     const priceResult = await calculateShirtPrice(postData);
-    console.log(priceResult);
+
     const pdfBuffer = await getProposal(
       priceResult[0],
       priceResult[1],
       priceResult[2],
       priceResult[3],
       priceResult[4],
-      priceResult[5]
+      priceResult[5],
+      postData
     );
-
-    console.log(pdfBuffer);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=proposal.pdf");
@@ -57,6 +56,7 @@ app.post("/api/generate-pdf", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 app.post("/api/quote", calculateQuote);
 
@@ -72,3 +72,5 @@ app.get("/api/health", (req, res) => {
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
+
