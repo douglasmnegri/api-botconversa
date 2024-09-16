@@ -5,8 +5,7 @@ const config = require("./knexfile");
 const env =
   process.env.NODE_ENV !== "production" ? "development" : "production";
 const dbConnection = knex(config[env]);
-// const SETUP = 30;
-// const PROFIT = 0.6;
+
 
 async function getPrice(id) {
   const shirts = await dbConnection("shirts").where("id", id).first();

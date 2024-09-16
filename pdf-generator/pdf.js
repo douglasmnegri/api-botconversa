@@ -5,6 +5,11 @@ const dotenv = require("dotenv");
 const { uploadPDFToS3 } = require("../script");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
+const knex = require("knex");
+const config = require("../knexfile");
+const env =
+  process.env.NODE_ENV !== "production" ? "development" : "production";
+const dbConnection = knex(config[env]);
 
 // Load the HTML template
 async function getProposal(
@@ -18,6 +23,12 @@ async function getProposal(
 ) {
   try {
     let template = fs.readFileSync(path.join(__dirname, "quote.html"), "utf8");
+    async function getShirtName(id) {
+      const shirts = await dbConnection("shirts").where("id", id).first();
+      return shirts.name;
+    }
+
+    const shirtName = await getShirtName(postData.shirtID);
 
     // Replace placeholders with actual data
     template = template
@@ -29,7 +40,8 @@ async function getProposal(
       .replace(/{{unitCostCard}}/g, unitCostCard)
       .replace(/{{colorFront}}/g, postData.colorFront)
       .replace(/{{colorBack}}/g, postData.colorBack)
-      .replace(/{{itemQuantity}}/g, postData.shirtQuantity);
+      .replace(/{{itemQuantity}}/g, postData.shirtQuantity)
+      .replace(/{{shirtName}}/g, shirtName);
 
     const browser = await puppeteer.launch({
       headless: true, // Change to true for headless mode
