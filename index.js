@@ -47,16 +47,18 @@ app.post("/api/generate-pdf", async (req, res) => {
       postData
     );
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=proposal.pdf");
+    // res.send(pdfBuffer);
+    res.json({
+      message: "BotConversa received this message successfully",
+      processedData: pdfBuffer,
+    });
 
-    res.send(pdfBuffer);
+    console.log(pdfBuffer);
   } catch (error) {
     console.error("Error generating PDF:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 app.post("/api/quote", calculateQuote);
 
@@ -72,5 +74,3 @@ app.get("/api/health", (req, res) => {
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
-
-
