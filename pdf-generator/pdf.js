@@ -4,9 +4,7 @@ const path = require("path");
 const dotenv = require("dotenv");
 const { uploadPDFToS3 } = require("../script");
 const { v4: uuidv4 } = require("uuid");
-const axios = require('axios');
-
-
+const axios = require("axios");
 
 // Load the HTML template
 async function getProposal(
@@ -61,10 +59,11 @@ async function getProposal(
 
     await uploadPDFToS3(pdfPath, b);
 
-    return await sendWhatsAppMessage(
-      `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`,
-      "5548991710155"
-    );
+    return `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`;
+    // return await sendWhatsAppMessage(
+    //   `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`,
+    //   "5548991710155"
+    // );
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw error;
@@ -80,7 +79,8 @@ async function sendWhatsAppMessage(pdfUrl, phoneNumber) {
     type: "document",
     document: {
       link: pdfUrl,
-      caption: "Here is your proposal!",
+      caption: "Segue a proposta solicitada, Douglas!",
+      filename: "Orçamento Click Camisetas 1002.pdf",
     },
   };
 
@@ -100,6 +100,5 @@ async function sendWhatsAppMessage(pdfUrl, phoneNumber) {
     console.error("Error sending WhatsApp message:", error);
   }
 }
-
 
 module.exports = { getProposal };
