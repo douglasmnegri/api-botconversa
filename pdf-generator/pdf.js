@@ -72,44 +72,9 @@ async function getProposal(
     await uploadPDFToS3(pdfPath, b);
 
     return `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`;
-    // return await sendWhatsAppMessage(
-    //   `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`,
-    //   "5548991710155"
-    // );
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw error;
-  }
-}
-
-async function sendWhatsAppMessage(pdfUrl, phoneNumber) {
-  const token = process.env.WHATSAPP_TOKEN;
-
-  const messageData = {
-    messaging_product: "whatsapp",
-    to: phoneNumber,
-    type: "document",
-    document: {
-      link: pdfUrl,
-      caption: "Segue a proposta solicitada, Douglas!",
-      filename: "Orçamento Click Camisetas 1002.pdf",
-    },
-  };
-
-  try {
-    const response = await axios.post(
-      "https://graph.facebook.com/v20.0/361460917059712/messages",
-      messageData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    console.log("WhatsApp message sent successfully:", response.data);
-  } catch (error) {
-    console.error("Error sending WhatsApp message:", error);
   }
 }
 
