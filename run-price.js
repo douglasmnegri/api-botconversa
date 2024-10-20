@@ -19,7 +19,7 @@ async function getSilkCosts() {
 
     return silkCosts;
   } catch (error) {
-    console.error("Deu erro", error);
+    console.error("Erro: ", error);
   }
 }
 

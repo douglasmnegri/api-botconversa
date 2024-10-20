@@ -6,6 +6,7 @@ exports.up = async function (knex) {
   // Create the table
   await knex.schema.createTable("proposal_id", function (table) {
     table.increments("id").primary();
+    table.string('phone').notNullable();
     table.timestamp("createdAt").defaultTo(knex.fn.now());
   });
 
