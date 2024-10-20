@@ -5,7 +5,8 @@ const { uploadPDFToS3 } = require("../script");
 const { v4: uuidv4 } = require("uuid");
 const knex = require("knex");
 const config = require("../knexfile");
-const env = process.env.NODE_ENV !== "production" ? "development" : "production";
+const env =
+  process.env.NODE_ENV !== "production" ? "development" : "production";
 const dbConnection = knex(config[env]);
 
 // Function to generate and upload the PDF
@@ -13,7 +14,7 @@ async function createAndUploadPDF(template, pdfPath) {
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     const page = await browser.newPage();
@@ -57,12 +58,28 @@ async function getProposal(
   try {
     let template = fs.readFileSync(path.join(__dirname, "quote.html"), "utf8");
 
-    // Function to get shirt name from database
+    // Function to get shirt name and proposal ID from database
     async function getShirtName(id) {
       const shirts = await dbConnection("shirts").where("id", id).first();
       return shirts.name;
     }
 
+    async function getProposalID(userNumber) {
+      try {
+        const proposal = await dbConnection("proposal_id")
+          .insert({ phone: userNumber })
+          .returning("id");
+
+          
+        const proposalID = proposal[0]; 
+        return proposalID.id;
+      } catch (error) {
+        console.error("Erro: ", error);
+      }
+    }
+    
+
+    const proposalID = await getProposalID(postData.phone);
     const shirtName = await getShirtName(postData.shirtID);
 
     // Replace placeholders with actual data
@@ -76,7 +93,8 @@ async function getProposal(
       .replace(/{{colorFront}}/g, postData.colorFront)
       .replace(/{{colorBack}}/g, postData.colorBack)
       .replace(/{{itemQuantity}}/g, postData.shirtQuantity)
-      .replace(/{{shirtName}}/g, shirtName);
+      .replace(/{{shirtName}}/g, shirtName)
+      .replace(/{{proposal}}/g, proposalID);
 
     // Generate a unique PDF filename and return the URL immediately
     const pdfPath = `proposta-${uuidv4()}.pdf`;
