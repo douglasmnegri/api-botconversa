@@ -205,9 +205,10 @@ async function shirtAndCustom(receivedData) {
   function getFinalPrice() {
     const [fixedPrice, DTF] = normalPrice();
     const checkForValue = fixedPrice > DTF ? DTF : fixedPrice;
-    const typeOfPrint = fixedPrice > DTF ? "Serigrafia" : "DTF";
+    const typeOfPrint = fixedPrice < DTF ? "Serigrafia (máximo de 28x35cm) " : "DTF Tamanho A4";
     const fixedCustom = checkForValue * receivedData.shirtQuantity;
-    console.log("CHECKFORVALUE", checkForValue);
+    console.log("PRINT TYPE: ", typeOfPrint);
+    console.log(`Fixed Price: ${fixedPrice}, DTF: ${DTF}`);
 
     const finalPriceTotal = Dinero({ amount: fixedCustom * 100 })
       .setLocale("pt-BR")
