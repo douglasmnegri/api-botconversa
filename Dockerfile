@@ -12,6 +12,30 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV="production"
 
+# Install Chromium dependencies
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    wget \
+    curl \
+    gnupg \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
+    libatk1.0-0 \
+    libcups2 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    libu2f-udev \
+    libvulkan1 \
+    chromium
+
 # Throw-away build stage to reduce size of final image
 FROM base as build
 
@@ -26,14 +50,17 @@ RUN npm ci
 # Copy application code
 COPY --link . .
 
-
 # Final stage for app image
 FROM base
 
 # Copy built application
 COPY --from=build /app /app
 
-# Start the server by default, this can be overwritten at runtime
-ENV NODE_ENV="production"
+# Add Chromium executable path to environment variable
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Expose port 3001
 EXPOSE 3001
+
+# Start the server by default, this can be overwritten at runtime
 CMD [ "npm", "run", "start" ]
