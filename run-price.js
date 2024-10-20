@@ -6,7 +6,6 @@ const env =
   process.env.NODE_ENV !== "production" ? "development" : "production";
 const dbConnection = knex(config[env]);
 
-
 async function getPrice(id) {
   const shirts = await dbConnection("shirts").where("id", id).first();
   return shirts;
@@ -17,6 +16,7 @@ async function getSilkCosts() {
     let silkCosts = await dbConnection("silkScreenCosts")
       .orderBy("id", "desc")
       .first();
+
     return silkCosts;
   } catch (error) {
     console.error("Deu erro", error);
@@ -205,17 +205,20 @@ async function shirtAndCustom(receivedData) {
   function getFinalPrice() {
     const [fixedPrice, DTF] = normalPrice();
     const checkForValue = fixedPrice > DTF ? DTF : fixedPrice;
+    const typeOfPrint = fixedPrice > DTF ? "Serigrafia" : "DTF";
     const fixedCustom = checkForValue * receivedData.shirtQuantity;
+    console.log("CHECKFORVALUE", checkForValue);
 
     const finalPriceTotal = Dinero({ amount: fixedCustom * 100 })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
     const unitPrice = checkForValue.toFixed(2).replace(/\./g, ",");
 
-    return [unitPrice, finalPriceTotal, checkForValue];
+    return [unitPrice, finalPriceTotal, checkForValue, typeOfPrint];
   }
 
-  const [unitPrice, finalPriceTotal, checkForValue] = getFinalPrice();
+  const [unitPrice, finalPriceTotal, checkForValue, typeOfPrint] =
+    getFinalPrice();
 
   function creditCardPrice() {
     let fixedCreditCardPrice = checkForValue;
@@ -229,12 +232,10 @@ async function shirtAndCustom(receivedData) {
 
     const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
 
-    
     const creditCardFinalPrice = Dinero({ amount: totalPrice * 100 })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
 
-    
     const creditCardUnitPrice = Dinero({ amount: fixedCreditCardPrice * 100 })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
@@ -253,11 +254,20 @@ async function shirtAndCustom(receivedData) {
     const installmentValue = Dinero({ amount: installmentPriceFixed })
       .setLocale("pt-BR")
       .toFormat("0,0.00");
-    return [numberOfInstallments, installmentValue, creditCardFinalPrice, creditCardUnitPrice];
+    return [
+      numberOfInstallments,
+      installmentValue,
+      creditCardFinalPrice,
+      creditCardUnitPrice,
+    ];
   }
 
-  const [numberOfInstallments, installmentPrice, creditCardFinalPrice, creditCardUnitPrice] =
-    creditCardPrice();
+  const [
+    numberOfInstallments,
+    installmentPrice,
+    creditCardFinalPrice,
+    creditCardUnitPrice,
+  ] = creditCardPrice();
 
   return [
     unitPrice,
@@ -265,7 +275,8 @@ async function shirtAndCustom(receivedData) {
     numberOfInstallments,
     installmentPrice,
     creditCardFinalPrice,
-    creditCardUnitPrice
+    creditCardUnitPrice,
+    typeOfPrint,
   ];
 }
 
