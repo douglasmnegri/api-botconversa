@@ -8,7 +8,7 @@ exports.seed = async function(knex) {
 
   // Inserts new entries
   await knex('silkScreenCosts').insert([
-    { id: 1, print: 45, screen: 1, setup: 30, profit: 60 },
+    { id: 1, print: 45, screen: 1, setup: 30, profit: 0.6 },
     // Add more entries as needed
   ]);
 };
