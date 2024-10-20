@@ -53,6 +53,7 @@ async function getProposal(
   installmentPrice,
   creditCardPrice,
   unitCostCard,
+  printType,
   postData
 ) {
   try {
@@ -70,14 +71,12 @@ async function getProposal(
           .insert({ phone: userNumber })
           .returning("id");
 
-          
-        const proposalID = proposal[0]; 
+        const proposalID = proposal[0];
         return proposalID.id;
       } catch (error) {
         console.error("Erro: ", error);
       }
     }
-    
 
     const proposalID = await getProposalID(postData.phone);
     const shirtName = await getShirtName(postData.shirtID);
@@ -94,7 +93,8 @@ async function getProposal(
       .replace(/{{colorBack}}/g, postData.colorBack)
       .replace(/{{itemQuantity}}/g, postData.shirtQuantity)
       .replace(/{{shirtName}}/g, shirtName)
-      .replace(/{{proposal}}/g, proposalID);
+      .replace(/{{proposal}}/g, proposalID)
+      .replace(/{{printType}}/g, printType)
 
     // Generate a unique PDF filename and return the URL immediately
     const pdfPath = `proposta-${uuidv4()}.pdf`;

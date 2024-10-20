@@ -44,6 +44,7 @@ app.post("/api/generate-pdf", async (req, res) => {
       priceResult[3],
       priceResult[4],
       priceResult[5],
+      priceResult[6],
       postData
     );
 
