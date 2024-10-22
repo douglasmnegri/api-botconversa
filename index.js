@@ -36,7 +36,7 @@ app.post("/api/generate-pdf", async (req, res) => {
   try {
     const postData = req.body;
     const priceResult = await calculateShirtPrice(postData);
-    
+
     const pdfBuffer = await getProposal(
       priceResult[0],
       priceResult[1],
