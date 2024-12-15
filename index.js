@@ -37,6 +37,9 @@ app.post("/api/generate-pdf", async (req, res) => {
     const postData = req.body;
     const priceResult = await calculateShirtPrice(postData);
 
+
+    console.log(priceResult);
+    console.log(postData);
     const pdfBuffer = await getProposal(
       priceResult[0],
       priceResult[1],
@@ -52,6 +55,7 @@ app.post("/api/generate-pdf", async (req, res) => {
     res.json({
       message: "BotConversa received this message successfully",
       processedData: pdfBuffer,
+      totalCost:  priceResult[4],
     });
 
     console.log(pdfBuffer);

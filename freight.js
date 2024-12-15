@@ -1,9 +1,14 @@
+require('dotenv').config();
+
 async function calculateQuote(req, res) {
   try {
     const requestBody = req.body;
+    console.log("REQUEST BODY:", requestBody)
     const modifiedBodyContent = manageData(requestBody)[0];
     const totalExpressBodyContent = manageData(requestBody)[1];
 
+
+    console.log("MODIFIED BODY CONTENT: ", modifiedBodyContent)
     const shippingPrice = await fetchPrice(modifiedBodyContent);
     const totalExpressPrice = await fetchPrice(totalExpressBodyContent);
 
@@ -33,6 +38,8 @@ function manageData(requestBody) {
   let totalExpressWeight = requestBody.Shirts * 0.162;
   let shirtQuantity = requestBody.Shirts;
 
+
+  console.log("PRICE TAG?", priceTag);
   const totalExpressBodyContent = {
     SellerCEP: "88310670",
     RecipientCEP: buyerAddress,
@@ -101,6 +108,9 @@ async function fetchPrice(modifiedBodyContent) {
 }
 
 function generateString(shippingPrice, requestBody) {
+
+  console.log("SHIPPING PRICE: ", shippingPrice);
+  console.log("REQUESG BODY: ", requestBody);
   try {
     if (
       !shippingPrice ||
