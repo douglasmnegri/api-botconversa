@@ -10,14 +10,29 @@ const { calculateShirtPrice } = require("./run-price.js");
 const { calculateQuote } = require("./freight.js");
 const { getCEP } = require("./check-cep.js");
 const { getProposal } = require("./pdf-generator/pdf.js");
+const { calculatePolyesterPrice } = require("./sublimation.js");
 
 app.use(express.json());
 app.use("/api/config", router);
 
+app.post("/api/sublimation", async (req, res) => {
+  try {
+    const postData = req.body;
+    const priceResult = await calculatePolyesterPrice(postData);
+    console.log(postData);
+    res.json({
+      message: "Sublimation Quote - Received",
+      processedData: priceResult,
+    });
+  } catch (error) {
+    console.error("Error: ", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 app.post("/api/calculate", async (req, res) => {
   try {
     const postData = req.body;
-    console.log(postData);
     const priceResult = await calculateShirtPrice(postData);
 
     // Send the processed data and price back in the response
@@ -37,9 +52,6 @@ app.post("/api/generate-pdf", async (req, res) => {
     const postData = req.body;
     const priceResult = await calculateShirtPrice(postData);
 
-
-    console.log(priceResult);
-    console.log(postData);
     const pdfBuffer = await getProposal(
       priceResult[0],
       priceResult[1],
@@ -51,11 +63,10 @@ app.post("/api/generate-pdf", async (req, res) => {
       postData
     );
 
-    // res.send(pdfBuffer);
     res.json({
       message: "BotConversa received this message successfully",
       processedData: pdfBuffer,
-      totalCost:  priceResult[4],
+      totalCost: priceResult[4],
     });
 
     console.log(pdfBuffer);
