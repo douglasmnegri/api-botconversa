@@ -117,8 +117,11 @@
           </p>
           <p>
             <a href="https://wa.me/5547991286949">
-              <i class="fa fa-whatsapp" style="font-size: 14px; color:green;"></i> (47)
-              99128-6949
+              <i
+                class="fa fa-whatsapp"
+                style="font-size: 14px; color: green"
+              ></i>
+              (47) 99128-6949
             </a>
           </p>
           <p>Rua Vereador Nestor dos Santos, 348</p>
@@ -142,10 +145,7 @@
           <tbody>
             <tr>
               <td>1</td>
-              <td>
-                {{shirtName}} (Frente {{colorFront}}
-                Cores + Costas {{colorBack}} Cores)
-              </td>
+              <td>{{shirtName}} ({{colorFront}} {{colorBack}})</td>
               <td>{{itemQuantity}}</td>
               <td class="unit-cash-content">R$ {{unitCostCash}}</td>
               <td class="total-content">R$ {{finalCost}}</td>
@@ -166,10 +166,7 @@
           <tbody>
             <tr>
               <td>1</td>
-              <td>
-                {{shirtName}} (Frente {{colorFront}}
-                Cores + Costas {{colorBack}} Cores)
-              </td>
+              <td>{{shirtName}} ({{colorFront}} {{colorBack}})</td>
               <td>{{itemQuantity}}</td>
               <td class="unit-card-content">R$ {{unitCostCard}}</td>
               <td class="credit-card-content">R$ {{creditCardPrice}}</td>
@@ -242,9 +239,8 @@
         <h3>Observações</h3>
         <div class="observations">
           <p>
-            - {{printType}} na Frente em {{colorFront}} Cores +
-            Costas em {{colorBack}} Cores, conforme arquivo a ser enviado em
-            vetor pelo cliente.
+            - {{printType}} {{colorFront}} {{colorBack}}, conforme arquivo a ser
+            enviado em vetor pelo cliente.
           </p>
           <p>
             - ATENÇÃO! É necessário informar a medida (em centímetros) das artes

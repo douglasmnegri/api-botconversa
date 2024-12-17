@@ -89,12 +89,36 @@ async function getProposal(
       .replace(/{{installmentPrice}}/g, installmentPrice)
       .replace(/{{creditCardPrice}}/g, creditCardPrice)
       .replace(/{{unitCostCard}}/g, unitCostCard)
-      .replace(/{{colorFront}}/g, postData.colorFront)
-      .replace(/{{colorBack}}/g, postData.colorBack)
-      .replace(/{{itemQuantity}}/g, postData.shirtQuantity)
       .replace(/{{shirtName}}/g, shirtName)
       .replace(/{{proposal}}/g, proposalID)
       .replace(/{{printType}}/g, printType)
+      .replace(/{{itemQuantity}}/g, postData.shirtQuantity);
+
+    if (printType == "Sublimação") {
+      template = template
+        .replace(
+          /{{colorFront}}/g,
+          postData.customFront
+            ? `Frente Tamanho ${postData.customFront == "1" ? "A4" : "A3"}`
+            : ""
+        )
+        .replace(
+          /{{colorBack}}/g,
+          postData.customBack
+            ? `+ Costas Tamanho ${postData.customBack == "1" ? "A4" : "A3"}`
+            : ""
+        );
+    } else {
+      template = template
+        .replace(
+          /{{colorFront}}/g,
+          postData.colorFront ? `Frente em ${postData.colorFront} Cores + ` : ""
+        )
+        .replace(
+          /{{colorBack}}/g,
+          postData.colorBack ? `Costas em ${postData.colorBack} Cores` : ""
+        );
+    }
 
     // Generate a unique PDF filename and return the URL immediately
     const pdfPath = `proposta-${uuidv4()}.pdf`;

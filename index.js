@@ -19,10 +19,21 @@ app.post("/api/sublimation", async (req, res) => {
   try {
     const postData = req.body;
     const priceResult = await calculatePolyesterPrice(postData);
-    console.log(postData);
+
+    const pdfBuffer = await getProposal(
+      priceResult[0],
+      priceResult[1],
+      priceResult[2],
+      priceResult[3],
+      priceResult[4],
+      priceResult[5],
+      priceResult[6],
+      postData
+    );
+
     res.json({
       message: "Sublimation Quote - Received",
-      processedData: priceResult,
+      processedData: pdfBuffer,
     });
   } catch (error) {
     console.error("Error: ", error);
@@ -68,8 +79,6 @@ app.post("/api/generate-pdf", async (req, res) => {
       processedData: pdfBuffer,
       totalCost: priceResult[4],
     });
-
-    console.log(pdfBuffer);
   } catch (error) {
     console.error("Error generating PDF:", error);
     res.status(500).json({ error: "Internal Server Error" });

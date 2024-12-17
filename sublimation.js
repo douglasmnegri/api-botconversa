@@ -58,9 +58,17 @@ function retailPrice(sublimationPrice, shirtQuantity) {
   if (shirtQuantity >= 100) {
     sublimationPrice -= 2;
   }
-
   const finalPrice = sublimationPrice * shirtQuantity;
-  return [sublimationPrice, finalPrice];
+
+  const finalPriceTotal = Dinero({ amount: finalPrice * 100 })
+    .setLocale("pt-BR")
+    .toFormat("0,0.00");
+
+  const unitPrice = Dinero({ amount: sublimationPrice * 100 })
+    .setLocale("pt-BR")
+    .toFormat("0,0.00");
+
+  return [unitPrice, finalPriceTotal];
 }
 
 async function calculatePolyesterPrice(receivedData) {
@@ -70,7 +78,7 @@ async function calculatePolyesterPrice(receivedData) {
   const backCustom = await getPrintingPrice(receivedData.customBack);
 
   const shirtPrice = selectedShirt.price;
-  const shirtAmount = receivedData.shirtAmount;
+  const shirtQuantity = receivedData.shirtQuantity;
 
   const shirtSum = parseFloat(backCustom) + parseFloat(frontCustom);
   const initialPrice = shirtSum + parseFloat(shirtPrice);
@@ -80,9 +88,9 @@ async function calculatePolyesterPrice(receivedData) {
     installmentValue,
     creditCardFinalPrice,
     creditCardUnitPrice,
-  ] = creditCardPrice(initialPrice, shirtAmount);
+  ] = creditCardPrice(initialPrice, shirtQuantity);
 
-  const [subPrice, finalPrice] = retailPrice(initialPrice, shirtAmount);
+  const [subPrice, finalPrice] = retailPrice(initialPrice, shirtQuantity);
 
   return [
     subPrice,
@@ -94,6 +102,5 @@ async function calculatePolyesterPrice(receivedData) {
     typeOfPrint,
   ];
 }
-
 
 module.exports = { calculatePolyesterPrice };
