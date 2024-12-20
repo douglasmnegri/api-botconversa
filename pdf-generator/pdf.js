@@ -92,12 +92,7 @@ async function getProposal(
       .replace(/{{shirtName}}/g, shirtName)
       .replace(/{{proposal}}/g, proposalID)
       .replace(/{{printType}}/g, printType)
-      .replace(
-        /{{itemQuantity}}/g,
-        postData.shirtQuantity < 20
-          ? (postData.shirtQuantity = 20)
-          : postData.shirtQuantity
-      );
+      .replace(/{{itemQuantity}}/g, postData.shirtQuantity);
 
     if (printType == "Sublimação") {
       template = template

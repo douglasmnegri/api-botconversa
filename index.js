@@ -18,6 +18,9 @@ app.use("/api/config", router);
 app.post("/api/sublimation", async (req, res) => {
   try {
     const postData = req.body;
+    Number(postData.shirtQuantity) < 20
+      ? (postData.shirtQuantity = 20)
+      : postData.shirtQuantity;
     const priceResult = await calculatePolyesterPrice(postData);
 
     const pdfBuffer = await getProposal(
@@ -42,29 +45,14 @@ app.post("/api/sublimation", async (req, res) => {
   }
 });
 
-app.post("/api/calculate", async (req, res) => {
-  try {
-    const postData = req.body;
-    console.log(postData)
-    const priceResult = await calculateShirtPrice(postData);
-
-    
-    res.json({
-      message: "BotConversa received this message successfully",
-      processedData: postData,
-      price: priceResult,
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
 app.post("/api/generate-pdf", async (req, res) => {
   try {
     const postData = req.body;
-    const priceResult = await calculateShirtPrice(postData);
+    Number(postData.shirtQuantity) < 20
+      ? (postData.shirtQuantity = 20)
+      : postData.shirtQuantity;
 
+    const priceResult = await calculateShirtPrice(postData);
     const pdfBuffer = await getProposal(
       priceResult[0],
       priceResult[1],
@@ -83,6 +71,22 @@ app.post("/api/generate-pdf", async (req, res) => {
     });
   } catch (error) {
     console.error("Error generating PDF:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/calculate", async (req, res) => {
+  try {
+    const postData = req.body;
+    const priceResult = await calculateShirtPrice(postData);
+
+    res.json({
+      message: "BotConversa received this message successfully",
+      processedData: postData,
+      price: priceResult,
+    });
+  } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
