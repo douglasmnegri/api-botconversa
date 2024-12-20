@@ -28,6 +28,7 @@ async function customization(color) {
   let print = parseFloat(customCosts.print);
   let screen = parseFloat(customCosts.screen); // Parse screen as a float
 
+   
   for (let i = 0; i < color - 1; i++) {
     print += 45;
 

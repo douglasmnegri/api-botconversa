@@ -3,8 +3,7 @@
  * @returns { Promise<void> }
  */
 exports.seed = async function (knex) {
-  // Deletes ALL existing entries
-  await knex('custom_printing').del();
+
 
   // Inserts new entries
   await knex('custom_printing').insert([

@@ -78,7 +78,10 @@ async function calculatePolyesterPrice(receivedData) {
   const backCustom = await getPrintingPrice(receivedData.customBack);
 
   const shirtPrice = selectedShirt.price;
-  const shirtQuantity = receivedData.shirtQuantity;
+  const shirtQuantity =
+    receivedData.shirtQuantity < 20
+      ? (receivedData.shirtQuantity = 20)
+      : receivedData.shirtQuantity;
 
   const shirtSum = parseFloat(backCustom) + parseFloat(frontCustom);
   const initialPrice = shirtSum + parseFloat(shirtPrice);

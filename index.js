@@ -34,6 +34,7 @@ app.post("/api/sublimation", async (req, res) => {
     res.json({
       message: "Sublimation Quote - Received",
       processedData: pdfBuffer,
+      totalCost: priceResult[4],
     });
   } catch (error) {
     console.error("Error: ", error);
@@ -44,9 +45,10 @@ app.post("/api/sublimation", async (req, res) => {
 app.post("/api/calculate", async (req, res) => {
   try {
     const postData = req.body;
+    console.log(postData)
     const priceResult = await calculateShirtPrice(postData);
 
-    // Send the processed data and price back in the response
+    
     res.json({
       message: "BotConversa received this message successfully",
       processedData: postData,
