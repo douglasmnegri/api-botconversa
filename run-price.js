@@ -23,6 +23,15 @@ async function getSilkCosts(id) {
   }
 }
 
+async function getDTFCost() {
+  try {
+    const sheet = await dbConnection("custom_printing").first();
+    return sheet;
+  } catch (error) {
+    console.error("Erro: ", error);
+  }
+}
+
 async function calculateCustomization(data) {
   let silkScreenCosts;
   if (data.shirtQuantity < 100) {
@@ -155,56 +164,35 @@ async function shirtAndCustom(receivedData) {
   let customPrice = await calculateCustomPrice(receivedData);
   const colorFront = parseInt(receivedData.colorFront);
   const colorBack = parseInt(receivedData.colorBack);
+  const sheetCost = await getDTFCost();
 
   function normalPrice() {
     let priceOverHundred = customPrice + parseFloat(selectedShirt.price);
 
     if (receivedData.shirtQuantity >= 100) {
-      if (receivedData.shirtID == 108) {
-        priceOverHundred -= 4;
-      } else {
-        priceOverHundred -= 2;
-      }
+      priceOverHundred -= 2;
     }
 
-    function directToFilm(code) {
-      let directToFilm = "";
-      let priceOne = 0;
-      let priceTwo = 0;
+    function directToFilm() {
+      let customDTFPrice = parseFloat(selectedShirt.price);
 
-      switch (parseInt(code)) {
-        case 108:
-        case 106:
-          priceOne = 42.0;
-          priceTwo = 42.0;
-          break;
-        case 103:
-          priceOne = 27.5;
-          priceTwo = 40.5;
-          break;
-        case 107:
-          priceOne = 34.0;
-          priceTwo = 47.0;
-          break;
-        default:
-          return null;
+      if (colorFront > 0) {
+        customDTFPrice =
+          customDTFPrice +
+          parseFloat(sheetCost.DTF) +
+          parseFloat(sheetCost.press);
+      }
+      if (colorBack > 0) {
+        customDTFPrice =
+          customDTFPrice +
+          parseFloat(sheetCost.DTF) +
+          parseFloat(sheetCost.press);
       }
 
-      if (colorFront != 0 && colorBack != 0) {
-        directToFilm = priceTwo;
-      } else if (
-        (colorFront != 0 && colorBack == 0) ||
-        (colorFront == 0 && colorBack != 0)
-      ) {
-        directToFilm = priceOne;
-      } else {
-        directToFilm = null;
-      }
-
-      return directToFilm;
+      return customDTFPrice;
     }
 
-    const DTF = directToFilm(receivedData.shirtID);
+    const DTF = directToFilm();
     const fixedPrice = Math.ceil(priceOverHundred * 2) / 2;
     return [fixedPrice, DTF];
   }
