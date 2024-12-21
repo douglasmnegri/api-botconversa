@@ -13,10 +13,22 @@ async function getPrice(id) {
 
 async function getPrintingPrice(id) {
   if (id) {
-    const printingPrice = await dbConnection("custom_printing")
+    const selectedPrint = await dbConnection("custom_printing")
       .where("id", id)
       .first();
-    return printingPrice.sublimation;
+    return selectedPrint.sublimation;
+  } else {
+    return 0;
+  }
+}
+
+async function getPressPrice(id) {
+  if (id) {
+    const pressPrice = await dbConnection("custom_printing")
+      .where("id", id)
+      .first();
+
+    return pressPrice.press;
   } else {
     return 0;
   }
@@ -73,14 +85,30 @@ function retailPrice(sublimationPrice, shirtQuantity) {
 
 async function calculatePolyesterPrice(receivedData) {
   const typeOfPrint = "Sublimação";
-  const selectedShirt = await getPrice(receivedData.shirtID);
-  const frontCustom = await getPrintingPrice(receivedData.customFront);
-  const backCustom = await getPrintingPrice(receivedData.customBack);
-
-  const shirtPrice = selectedShirt.price;
   const shirtQuantity = receivedData.shirtQuantity;
 
-  const shirtSum = parseFloat(backCustom) + parseFloat(frontCustom);
+  let front = parseFloat(receivedData.customFront);
+  let back = parseFloat(receivedData.customBack);
+
+  let dataObj = {
+    frontID: shirtQuantity < 100 ? front : (front += 2),
+    backID: shirtQuantity < 100 ? back : (back += 2),
+  };
+
+  const selectedShirt = await getPrice(receivedData.shirtID);
+  const frontCustom = await getPrintingPrice(dataObj.frontID);
+  const backCustom = await getPrintingPrice(dataObj.backID);
+  const pressF = await getPressPrice(dataObj.frontID);
+  const pressB = await getPressPrice(dataObj.backID);
+
+  const shirtPrice = selectedShirt.price;
+
+  const shirtSum =
+    parseFloat(backCustom) +
+    parseFloat(frontCustom) +
+    parseFloat(pressF) +
+    parseFloat(pressB);
+    
   const initialPrice = shirtSum + parseFloat(shirtPrice);
 
   const [

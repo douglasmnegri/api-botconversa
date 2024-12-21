@@ -117,7 +117,6 @@ function arrayEquals(arr1, arr2) {
 
 async function calculateCustomPrice(receivedData) {
   const customCost = await calculateCustomization(receivedData);
-  console.log(customCost);
   const frontCustomization = customCost[0];
   const backCustomization = customCost[1];
   let customPriceFront = 0;
