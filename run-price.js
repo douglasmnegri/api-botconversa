@@ -11,10 +11,10 @@ async function getPrice(id) {
   return shirts;
 }
 
-async function getSilkCosts() {
+async function getSilkCosts(id) {
   try {
-    let silkCosts = await dbConnection("silkScreenCosts")
-      .orderBy("id", "desc")
+    let silkCosts = await dbConnection("silk_screen_costs")
+      .where("id", id)
       .first();
 
     return silkCosts;
@@ -23,51 +23,57 @@ async function getSilkCosts() {
   }
 }
 
-async function customization(color) {
-  let customCosts = await getSilkCosts();
-  let print = parseFloat(customCosts.print);
-  let screen = parseFloat(customCosts.screen); // Parse screen as a float
+async function calculateCustomization(data) {
+  let silkScreenCosts;
+  if (data.shirtQuantity < 100) {
+    silkScreenCosts = await getSilkCosts(1);
+  } else {
+    silkScreenCosts = await getSilkCosts(2);
+  }
 
-   
-  for (let i = 0; i < color - 1; i++) {
-    print += 45;
+  console.log(silkScreenCosts);
 
-    if (color <= 5) {
-      screen += 0.07;
-    } else {
-      screen += 0.106;
+  calculateCosts = async (color) => {
+    let print = parseFloat(silkScreenCosts.print);
+    let screen = parseFloat(silkScreenCosts.screen);
+    let ink = parseFloat(silkScreenCosts.ink);
+
+    for (let i = 0; i < color - 1; i++) {
+      print += 45;
+      screen += ink;
     }
-  }
 
-  switch (color) {
-    case 7:
-      screen += 0.045;
-      break;
+    return { print, screen };
+  };
 
-    case 8:
-      screen += 0.09;
-      break;
+  const customFront = async (colorFront) => {
+    if (colorFront != 0) {
+      const { print, screen } = await calculateCosts(colorFront);
 
-    case 9:
-      screen += 0.13;
-      break;
+      return roundAndProfit(print, screen, silkScreenCosts.profit);
+    } else {
+      return [0, 0];
+    }
+  };
 
-    case 10:
-      screen += 0.175;
-      break;
+  const customBack = async (colorBack) => {
+    if (colorBack != 0) {
+      const { print, screen } = await calculateCosts(colorBack);
+      return roundAndProfit(print, screen, silkScreenCosts.profit);
+    } else {
+      return [0, 0];
+    }
+  };
 
-    default:
-      break;
-  }
-
-  return { print, screen };
+  return [
+    await customFront(data.colorFront),
+    await customBack(data.colorBack),
+    silkScreenCosts,
+  ];
 }
 
-async function roundAndProfit(print, screen) {
+async function roundAndProfit(print, screen, profit) {
   try {
-    const customCosts = await getSilkCosts();
-    const profit = customCosts.profit;
-
     const profitPrint = print / profit;
     const profitScreen = screen / profit;
 
@@ -81,24 +87,24 @@ async function roundAndProfit(print, screen) {
   }
 }
 
-const customFront = async (colorFront) => {
-  if (colorFront != 0) {
-    const { print, screen } = await customization(colorFront);
+// const customFront = async (colorFront) => {
+//   if (colorFront != 0) {
+//     const { print, screen } = await customization(colorFront);
 
-    return roundAndProfit(print, screen);
-  } else {
-    return [0, 0];
-  }
-};
+//     return roundAndProfit(print, screen);
+//   } else {
+//     return [0, 0];
+//   }
+// };
 
-const customBack = async (colorBack) => {
-  if (colorBack != 0) {
-    const { print, screen } = await customization(colorBack);
-    return roundAndProfit(print, screen);
-  } else {
-    return [0, 0];
-  }
-};
+// const customBack = async (colorBack) => {
+//   if (colorBack != 0) {
+//     const { print, screen } = await customization(colorBack);
+//     return roundAndProfit(print, screen);
+//   } else {
+//     return [0, 0];
+//   }
+// };
 
 function arrayEquals(arr1, arr2) {
   return (
@@ -110,13 +116,14 @@ function arrayEquals(arr1, arr2) {
 }
 
 async function calculateCustomPrice(receivedData) {
-  const frontCustomization = await customFront(receivedData.colorFront);
-  const backCustomization = await customBack(receivedData.colorBack);
+  const customCost = await calculateCustomization(receivedData);
+  console.log(customCost);
+  const frontCustomization = customCost[0];
+  const backCustomization = customCost[1];
   let customPriceFront = 0;
   let customPriceBack = 0;
 
-  const customCosts = await getSilkCosts();
-  const setup = customCosts.setup;
+  const setup = customCost[2].setup;
 
   if (!arrayEquals(frontCustomization, [0, 0])) {
     if (receivedData.shirtID == 108) {
