@@ -1,6 +1,8 @@
-// run-price.js
 const Dinero = require("dinero.js");
+
 const { getPrice, getSilkCosts, getDTFCost } = require("./connect-db");
+const { getPriceComparison } = require("./price-comparison");
+const { creditCardPrice } = require("./credit-card");
 
 async function calculateCustomization(data) {
   let silkScreenCosts;
@@ -114,39 +116,15 @@ async function shirtAndCustom(receivedData) {
   const colorBack = parseInt(receivedData.colorBack);
   const sheetCost = await getDTFCost();
 
-  function normalPrice() {
-    let priceOverHundred = customPrice + parseFloat(selectedShirt.price);
-
-    if (receivedData.shirtQuantity >= 100) {
-      priceOverHundred -= 2;
-    }
-
-    function directToFilm() {
-      let customDTFPrice = parseFloat(selectedShirt.price);
-
-      if (colorFront > 0) {
-        customDTFPrice =
-          customDTFPrice +
-          parseFloat(sheetCost.DTF) +
-          parseFloat(sheetCost.press);
-      }
-      if (colorBack > 0) {
-        customDTFPrice =
-          customDTFPrice +
-          parseFloat(sheetCost.DTF) +
-          parseFloat(sheetCost.press);
-      }
-
-      return customDTFPrice;
-    }
-
-    const DTF = directToFilm();
-    const fixedPrice = Math.ceil(priceOverHundred * 2) / 2;
-    return [fixedPrice, DTF];
-  }
-
   function getFinalPrice() {
-    const [fixedPrice, DTF] = normalPrice();
+    const [fixedPrice, DTF] = getPriceComparison(
+      selectedShirt.price,
+      receivedData.shirtQuantity,
+      customPrice,
+      colorFront,
+      colorBack,
+      sheetCost
+    );
 
     const checkForValue = fixedPrice > DTF ? DTF : fixedPrice;
     const typeOfPrint =
@@ -164,53 +142,16 @@ async function shirtAndCustom(receivedData) {
   const [unitPrice, finalPriceTotal, checkForValue, typeOfPrint] =
     getFinalPrice();
 
-  function creditCardPrice() {
-    let fixedCreditCardPrice = checkForValue;
-    if (receivedData.shirtQuantity >= 100) {
-      if (receivedData.shirtID == 108) {
-        fixedCreditCardPrice += 4;
-      } else {
-        fixedCreditCardPrice += 2;
-      }
-    }
-
-    const totalPrice = fixedCreditCardPrice * receivedData.shirtQuantity;
-
-    const creditCardFinalPrice = Dinero({ amount: totalPrice * 100 })
-      .setLocale("pt-BR")
-      .toFormat("0,0.00");
-
-    const creditCardUnitPrice = Dinero({ amount: fixedCreditCardPrice * 100 })
-      .setLocale("pt-BR")
-      .toFormat("0,0.00");
-
-    let installmentPrice, numberOfInstallments;
-    for (let i = 10; i > 0; i--) {
-      numberOfInstallments = i;
-      installmentPrice = totalPrice / numberOfInstallments;
-      if (installmentPrice >= 100) {
-        break;
-      }
-    }
-
-    const installmentPriceFixed = Math.round(installmentPrice * 100); // Ensure installmentPriceFixed is an integer
-    const installmentValue = Dinero({ amount: installmentPriceFixed })
-      .setLocale("pt-BR")
-      .toFormat("0,0.00");
-    return [
-      numberOfInstallments,
-      installmentValue,
-      creditCardFinalPrice,
-      creditCardUnitPrice,
-    ];
-  }
-
   const [
     numberOfInstallments,
     installmentPrice,
     creditCardFinalPrice,
     creditCardUnitPrice,
-  ] = creditCardPrice();
+  ] = creditCardPrice(
+    receivedData.shirtQuantity,
+    checkForValue,
+    receivedData.shirtID
+  );
 
   return [
     unitPrice,
@@ -230,6 +171,3 @@ function calculateShirtPrice(receivedData) {
 module.exports = {
   calculateShirtPrice,
 };
-
-
-
