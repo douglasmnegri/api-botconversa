@@ -40,8 +40,6 @@ async function calculateCustomization(data) {
     silkScreenCosts = await getSilkCosts(2);
   }
 
-  console.log(silkScreenCosts);
-
   calculateCosts = async (color) => {
     let print = parseFloat(silkScreenCosts.print);
     let screen = parseFloat(silkScreenCosts.screen);
@@ -96,25 +94,6 @@ async function roundAndProfit(print, screen, profit) {
   }
 }
 
-// const customFront = async (colorFront) => {
-//   if (colorFront != 0) {
-//     const { print, screen } = await customization(colorFront);
-
-//     return roundAndProfit(print, screen);
-//   } else {
-//     return [0, 0];
-//   }
-// };
-
-// const customBack = async (colorBack) => {
-//   if (colorBack != 0) {
-//     const { print, screen } = await customization(colorBack);
-//     return roundAndProfit(print, screen);
-//   } else {
-//     return [0, 0];
-//   }
-// };
-
 function arrayEquals(arr1, arr2) {
   return (
     Array.isArray(arr1) &&
@@ -131,8 +110,12 @@ async function calculateCustomPrice(receivedData) {
   let customPriceFront = 0;
   let customPriceBack = 0;
 
-  const setup = customCost[2].setup;
 
+  // console.log("FCUSTOM", frontCustomization)
+  console.log("BCUSTOM", backCustomization);
+
+
+  const setup = customCost[2].setup;
   if (!arrayEquals(frontCustomization, [0, 0])) {
     if (receivedData.shirtID == 108) {
       customPriceFront = 4;
@@ -141,6 +124,12 @@ async function calculateCustomPrice(receivedData) {
         frontCustomization[1] +
         frontCustomization[0] / receivedData.shirtQuantity +
         setup / receivedData.shirtQuantity;
+
+        // console.log("Estampa", frontCustomization[1])
+        // console.log("Telas dividido por Quantidade de Camisetas", frontCustomization[0] / receivedData.shirtQuantity);
+        // console.log("Setup dividido pelas peças", setup / receivedData.shirtQuantity);
+
+        // console.log("Valor Total: ", customPriceFront);
     }
   }
 
@@ -149,6 +138,13 @@ async function calculateCustomPrice(receivedData) {
       backCustomization[1] +
       backCustomization[0] / receivedData.shirtQuantity +
       setup / receivedData.shirtQuantity;
+
+
+      console.log("Estampa", backCustomization[1])
+      console.log("Telas dividido por Quantidade de Camisetas", backCustomization[0] / receivedData.shirtQuantity);
+      console.log("Setup dividido pelas peças", setup / receivedData.shirtQuantity);
+
+      console.log("Valor Total: ", customPriceBack);
   }
 
   return customPriceBack + customPriceFront;
@@ -199,6 +195,7 @@ async function shirtAndCustom(receivedData) {
 
   function getFinalPrice() {
     const [fixedPrice, DTF] = normalPrice();
+
     const checkForValue = fixedPrice > DTF ? DTF : fixedPrice;
     const typeOfPrint =
       fixedPrice < DTF ? "Serigrafia (máximo de 28x35cm) " : "DTF Tamanho A4";
@@ -235,7 +232,6 @@ async function shirtAndCustom(receivedData) {
       .setLocale("pt-BR")
       .toFormat("0,0.00");
 
-    console.log(creditCardUnitPrice);
     let installmentPrice, numberOfInstallments;
     for (let i = 10; i > 0; i--) {
       numberOfInstallments = i;
