@@ -1,36 +1,6 @@
 // run-price.js
 const Dinero = require("dinero.js");
-const knex = require("knex");
-const config = require("./knexfile");
-const env =
-  process.env.NODE_ENV !== "production" ? "development" : "production";
-const dbConnection = knex(config[env]);
-
-async function getPrice(id) {
-  const shirts = await dbConnection("shirts").where("id", id).first();
-  return shirts;
-}
-
-async function getSilkCosts(id) {
-  try {
-    let silkCosts = await dbConnection("silk_screen_costs")
-      .where("id", id)
-      .first();
-
-    return silkCosts;
-  } catch (error) {
-    console.error("Erro: ", error);
-  }
-}
-
-async function getDTFCost() {
-  try {
-    const sheet = await dbConnection("custom_printing").first();
-    return sheet;
-  } catch (error) {
-    console.error("Erro: ", error);
-  }
-}
+const { getPrice, getSilkCosts, getDTFCost } = require("./connect-db");
 
 async function calculateCustomization(data) {
   let silkScreenCosts;
@@ -110,11 +80,6 @@ async function calculateCustomPrice(receivedData) {
   let customPriceFront = 0;
   let customPriceBack = 0;
 
-
-  // console.log("FCUSTOM", frontCustomization)
-  console.log("BCUSTOM", backCustomization);
-
-
   const setup = customCost[2].setup;
   if (!arrayEquals(frontCustomization, [0, 0])) {
     if (receivedData.shirtID == 108) {
@@ -124,12 +89,6 @@ async function calculateCustomPrice(receivedData) {
         frontCustomization[1] +
         frontCustomization[0] / receivedData.shirtQuantity +
         setup / receivedData.shirtQuantity;
-
-        // console.log("Estampa", frontCustomization[1])
-        // console.log("Telas dividido por Quantidade de Camisetas", frontCustomization[0] / receivedData.shirtQuantity);
-        // console.log("Setup dividido pelas peças", setup / receivedData.shirtQuantity);
-
-        // console.log("Valor Total: ", customPriceFront);
     }
   }
 
@@ -138,13 +97,6 @@ async function calculateCustomPrice(receivedData) {
       backCustomization[1] +
       backCustomization[0] / receivedData.shirtQuantity +
       setup / receivedData.shirtQuantity;
-
-
-      console.log("Estampa", backCustomization[1])
-      console.log("Telas dividido por Quantidade de Camisetas", backCustomization[0] / receivedData.shirtQuantity);
-      console.log("Setup dividido pelas peças", setup / receivedData.shirtQuantity);
-
-      console.log("Valor Total: ", customPriceBack);
   }
 
   return customPriceBack + customPriceFront;
@@ -278,3 +230,6 @@ function calculateShirtPrice(receivedData) {
 module.exports = {
   calculateShirtPrice,
 };
+
+
+

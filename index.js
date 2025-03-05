@@ -6,7 +6,7 @@ const app = express();
 const port = 3001;
 const { router } = require("./configs.js");
 
-const { calculateShirtPrice } = require("./run-price.js");
+const { calculateShirtPrice } = require("./server/run-price.js");
 const { calculateQuote } = require("./freight.js");
 const { getCEP } = require("./check-cep.js");
 const { getProposal } = require("./pdf-generator/pdf.js");
