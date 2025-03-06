@@ -30,8 +30,18 @@ async function getDTFCost() {
   }
 }
 
+async function getPress() {
+  try {
+    const press = await dbConnection("custom_printing").select("press").first();
+    return press;
+  } catch (error) {
+    console.error("Erro: ", error);
+  }
+}
+
 module.exports = {
   getPrice,
   getSilkCosts,
-  getDTFCost
+  getDTFCost,
+  getPress, 
 };

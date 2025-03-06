@@ -1,6 +1,11 @@
 const Dinero = require("dinero.js");
 
-const { getPrice, getSilkCosts, getDTFCost } = require("./connect-db");
+const {
+  getPrice,
+  getSilkCosts,
+  getDTFCost,
+  getPress,
+} = require("./connect-db");
 const { getPriceComparison } = require("./price-comparison");
 const { creditCardPrice } = require("./credit-card");
 
@@ -115,32 +120,19 @@ async function shirtAndCustom(receivedData) {
   const colorFront = parseInt(receivedData.colorFront);
   const colorBack = parseInt(receivedData.colorBack);
   const sheetCost = await getDTFCost();
+  const press = await getPress();
 
-  function getFinalPrice() {
-    const [fixedPrice, DTF] = getPriceComparison(
+  const [unitPrice, finalPriceTotal, priceComparison, typeOfPrint] =
+    getPriceComparison(
       selectedShirt.price,
       receivedData.shirtQuantity,
       customPrice,
       colorFront,
       colorBack,
-      sheetCost
+      sheetCost,
+      receivedData.shirtID,
+      press
     );
-
-    const checkForValue = fixedPrice > DTF ? DTF : fixedPrice;
-    const typeOfPrint =
-      fixedPrice < DTF ? "Serigrafia (máximo de 28x35cm) " : "DTF Tamanho A4";
-    const fixedCustom = checkForValue * receivedData.shirtQuantity;
-
-    const finalPriceTotal = Dinero({ amount: fixedCustom * 100 })
-      .setLocale("pt-BR")
-      .toFormat("0,0.00");
-    const unitPrice = checkForValue.toFixed(2).replace(/\./g, ",");
-
-    return [unitPrice, finalPriceTotal, checkForValue, typeOfPrint];
-  }
-
-  const [unitPrice, finalPriceTotal, checkForValue, typeOfPrint] =
-    getFinalPrice();
 
   const [
     numberOfInstallments,
@@ -148,8 +140,8 @@ async function shirtAndCustom(receivedData) {
     creditCardFinalPrice,
     creditCardUnitPrice,
   ] = creditCardPrice(
+    priceComparison,
     receivedData.shirtQuantity,
-    checkForValue,
     receivedData.shirtID
   );
 
