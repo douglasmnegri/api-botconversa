@@ -59,29 +59,27 @@ async function getProposal(
   try {
     let template = fs.readFileSync(path.join(__dirname, "quote.html"), "utf8");
 
-    // Function to get shirt name and proposal ID from database
     async function getShirtName(id) {
-      const shirts = await dbConnection("shirts").where("id", id).first();
-      return shirts.name;
+      const shirt = await dbConnection("shirts").where("id", id).first();
+      return shirt ? shirt.name : "Unknown Shirt";
     }
 
-    async function getProposalID(userNumber) {
+    async function insertProposal(userNumber) {
       try {
-        const proposal = await dbConnection("proposal_id")
+        const [proposal] = await dbConnection("proposal_id")
           .insert({ phone: userNumber })
-          .returning("id");
+          .returning(["id"]); // Use ["id"] to ensure array format
 
-        const proposalID = proposal[0];
-        return proposalID.id;
+        return proposal.id;
       } catch (error) {
-        console.error("Erro: ", error);
+        console.error("Error inserting proposal:", error);
+        throw error;
       }
     }
 
-    const proposalID = await getProposalID(postData.phone);
+    const proposalID = await insertProposal(postData.phone);
     const shirtName = await getShirtName(postData.shirtID);
 
-    // Replace placeholders with actual data
     template = template
       .replace(/{{unitCostCash}}/g, unitCostCash)
       .replace(/{{finalCost}}/g, finalCost)
@@ -94,7 +92,7 @@ async function getProposal(
       .replace(/{{printType}}/g, printType)
       .replace(/{{itemQuantity}}/g, postData.shirtQuantity);
 
-    if (printType == "Sublimação") {
+    if (printType === "Sublimação") {
       template = template
         .replace(
           /{{colorFront}}/g,
@@ -120,14 +118,24 @@ async function getProposal(
         );
     }
 
-    // Generate a unique PDF filename and return the URL immediately
+    // Generate PDF filename
     const pdfPath = `proposta-${uuidv4()}.pdf`;
     const s3Url = `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`;
 
-    // Offload the PDF creation and upload to a separate function
-    createAndUploadPDF(template, pdfPath);
+    // Start PDF creation and upload in the background
+    createAndUploadPDF(template, pdfPath)
+      .then(async () => {
+        await dbConnection("proposal_id")
+          .where("id", proposalID)
+          .update({ pdf_url: s3Url });
 
-    // Immediately return the S3 URL
+        console.log(`Updated proposal ${proposalID} with S3 URL`);
+      })
+      .catch((error) => {
+        console.error("Error uploading PDF or updating DB:", error);
+      });
+
+    // Return immediately with S3 URL
     return s3Url;
   } catch (error) {
     console.error("Error generating proposal:", error);
