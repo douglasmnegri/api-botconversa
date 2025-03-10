@@ -9,8 +9,8 @@ exports.seed = async function(knex) {
     { id: 104, name: "Camiseta Sublime Básica Branca", price: 11.5 },
     { id: 105, name: "Camiseta Sublime Premium Branca", price: 12 },
     { id: 106, name: "Camiseta Sublime Premium Colorida", price: 13 },
-    { id: 107, name: "Camiseta de Algodão Penteado Branca", price: 22 },
-    { id: 108, name: "Camiseta de Algodão Penteado Preta", price: 25 }
+    { id: 107, name: "Camiseta de Algodão Penteado", price: 22 },
+    { id: 108, name: "Camisa Polo", price: 25 }
   ];
 
   
