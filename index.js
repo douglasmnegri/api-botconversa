@@ -11,6 +11,7 @@ const { calculateQuote } = require("./freight.js");
 const { getCEP } = require("./check-cep.js");
 const { getProposal } = require("./pdf-generator/pdf.js");
 const { calculatePolyesterPrice } = require("./sublimation.js");
+const { sendPDF } = require("./server/get-pdf-url.js");
 
 app.use(express.json());
 app.use("/api/config", router);
@@ -84,6 +85,23 @@ app.post("/api/calculate", async (req, res) => {
       message: "BotConversa received this message successfully",
       processedData: postData,
       price: priceResult,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/pdf-url", async (req, res) => {
+  try {
+    const postData = req.body;
+    console.log(postData);
+    const pdfData = await sendPDF(postData);
+
+    res.json({
+      message: "BotConversa received this message successfully",
+      processedData: postData,
+      data: pdfData,
     });
   } catch (error) {
     console.error("Error:", error);

@@ -39,11 +39,22 @@ async function getPress() {
   }
 }
 
-
+async function getURL(pdf_id) {
+  try {
+    const pdf = await dbConnection("proposal_id")
+      .select("pdf_url", "createdAt")
+      .where("id", pdf_id);
+    console.log(pdf);
+    return pdf;
+  } catch (error) {
+    console.error("Erro: ", error);
+  }
+}
 
 module.exports = {
   getPrice,
   getSilkCosts,
   getDTFCost,
-  getPress, 
+  getPress,
+  getURL,
 };
