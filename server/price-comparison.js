@@ -51,6 +51,8 @@ function getPriceComparison(
     }
   }
 
+  console.log("TESTEEEEEE", priceComparison, silkPrice)
+
   const finalPriceTotal = Dinero({ amount: priceComparison * sQuantity * 100 })
     .setLocale("pt-BR")
     .toFormat("0,0.00");

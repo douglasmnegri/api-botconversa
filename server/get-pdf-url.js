@@ -2,7 +2,6 @@ const { getURL } = require("./connect-db");
 
 async function sendPDF(pdf_id) {
   pdf_id = parseInt(pdf_id.data);
-  console.log("PDF", pdf_id, typeof pdf_id);
   try {
     const pdf = await getURL(pdf_id);
 

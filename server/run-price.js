@@ -122,6 +122,9 @@ async function shirtAndCustom(receivedData) {
   const sheetCost = await getDTFCost();
   const press = await getPress();
 
+
+  console.log("PREÇO PERSONALIZAÇÃO", customPrice)
+
   const [unitPrice, finalPriceTotal, priceComparison, typeOfPrint] =
     getPriceComparison(
       selectedShirt.price,

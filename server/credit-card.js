@@ -3,11 +3,7 @@ const Dinero = require("dinero.js");
 function creditCardPrice(checkForValue, sQuantity, sID) {
   let fixedCreditCardPrice = checkForValue;
   if (sQuantity >= 100) {
-    if (sID == 108) {
-      fixedCreditCardPrice += 4;
-    } else {
-      fixedCreditCardPrice += 2;
-    }
+    fixedCreditCardPrice += 2;
   }
 
   const totalPrice = fixedCreditCardPrice * sQuantity;

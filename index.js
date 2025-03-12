@@ -95,9 +95,8 @@ app.post("/api/calculate", async (req, res) => {
 app.post("/api/pdf-url", async (req, res) => {
   try {
     const postData = req.body;
-    console.log(postData);
     const pdfData = await sendPDF(postData);
-
+    console.log(pdfData)
     res.json({
       message: "BotConversa received this message successfully",
       processedData: postData,
