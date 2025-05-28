@@ -118,6 +118,18 @@ async function getProposal(
         );
     }
 
+    // else if (postData.shirtID == 108) {
+    //   template = template
+    //     .replace(
+    //       /{{colorFront}}/g,
+    //       postData.colorFront ? `Frente em DTF (Bolso - 12cm)` : ""
+    //     )
+    //     .replace(
+    //       /{{colorBack}}/g,
+    //       postData.colorBack ? `Costas em ${postData.colorBack} Cores` : ""
+    //     );
+    // }
+
     // Generate PDF filename
     const pdfPath = `proposta-${uuidv4()}.pdf`;
     const s3Url = `https://orcamento-click.s3.us-west-2.amazonaws.com/${pdfPath}`;

@@ -123,7 +123,6 @@ async function shirtAndCustom(receivedData) {
   const press = await getPress();
 
 
-  console.log("PREÇO PERSONALIZAÇÃO", customPrice)
 
   const [unitPrice, finalPriceTotal, priceComparison, typeOfPrint] =
     getPriceComparison(
