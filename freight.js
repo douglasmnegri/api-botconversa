@@ -1,14 +1,11 @@
-require('dotenv').config();
+require("dotenv").config();
 
 async function calculateQuote(req, res) {
   try {
     const requestBody = req.body;
-    console.log("REQUEST BODY:", requestBody)
     const modifiedBodyContent = manageData(requestBody)[0];
     const totalExpressBodyContent = manageData(requestBody)[1];
 
-
-    console.log("MODIFIED BODY CONTENT: ", modifiedBodyContent)
     const shippingPrice = await fetchPrice(modifiedBodyContent);
     const totalExpressPrice = await fetchPrice(totalExpressBodyContent);
 
@@ -37,7 +34,6 @@ function manageData(requestBody) {
   let shirtsWeight = requestBody.Shirts * 0.1;
   let totalExpressWeight = requestBody.Shirts * 0.162;
   let shirtQuantity = requestBody.Shirts;
-
 
   console.log("PRICE TAG?", priceTag);
   const totalExpressBodyContent = {
@@ -86,6 +82,8 @@ async function fetchPrice(modifiedBodyContent) {
     token: process.env.FRENET_TOKEN,
   };
 
+  console.log("MODIFIED BODY CONTENT: ", modifiedBodyContent);
+  console.log(process.env.FRENET_TOKEN, "TOKEN");
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -108,7 +106,6 @@ async function fetchPrice(modifiedBodyContent) {
 }
 
 function generateString(shippingPrice, requestBody) {
-
   console.log("SHIPPING PRICE: ", shippingPrice);
   console.log("REQUESG BODY: ", requestBody);
   try {
