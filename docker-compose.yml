@@ -1,8 +1,9 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16
+    container_name: click_postgres
     ports:
       - "5436:5432"
     environment:
@@ -10,4 +11,7 @@ services:
       POSTGRES_PASSWORD: dmn102030
       POSTGRES_DB: click_camisetas
     volumes:
-      - /var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:

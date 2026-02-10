@@ -82,6 +82,7 @@ function arrayEquals(arr1, arr2) {
 
 async function calculateCustomPrice(receivedData) {
   const customCost = await calculateCustomization(receivedData);
+  console.log(`customCost: ${JSON.stringify(customCost)}`);
   const frontCustomization = customCost[0];
   const backCustomization = customCost[1];
   let customPriceFront = 0;
@@ -96,6 +97,8 @@ async function calculateCustomPrice(receivedData) {
         frontCustomization[1] +
         frontCustomization[0] / receivedData.shirtQuantity +
         setup / receivedData.shirtQuantity;
+
+        customPriceFront = customPriceFront + 0.8;
     }
   }
 
@@ -104,6 +107,9 @@ async function calculateCustomPrice(receivedData) {
       backCustomization[1] +
       backCustomization[0] / receivedData.shirtQuantity +
       setup / receivedData.shirtQuantity;
+
+      console.log(customPriceBack);
+      customPriceBack = customPriceBack + 0.8;
   }
 
   return customPriceBack + customPriceFront;
