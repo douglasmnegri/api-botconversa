@@ -98,7 +98,9 @@ async function calculateCustomPrice(receivedData) {
         frontCustomization[0] / receivedData.shirtQuantity +
         setup / receivedData.shirtQuantity;
 
+      if (receivedData.shirtQuantity >= 100) {
         customPriceFront = customPriceFront + 0.8;
+      }
     }
   }
 
@@ -108,8 +110,9 @@ async function calculateCustomPrice(receivedData) {
       backCustomization[0] / receivedData.shirtQuantity +
       setup / receivedData.shirtQuantity;
 
-      console.log(customPriceBack);
+    if (receivedData.shirtQuantity >= 100) {
       customPriceBack = customPriceBack + 0.8;
+    }
   }
 
   return customPriceBack + customPriceFront;
@@ -128,8 +131,6 @@ async function shirtAndCustom(receivedData) {
   const sheetCost = await getDTFCost();
   const press = await getPress();
 
-
-
   const [unitPrice, finalPriceTotal, priceComparison, typeOfPrint] =
     getPriceComparison(
       selectedShirt.price,
@@ -139,7 +140,7 @@ async function shirtAndCustom(receivedData) {
       colorBack,
       sheetCost,
       receivedData.shirtID,
-      press
+      press,
     );
 
   const [
@@ -150,7 +151,7 @@ async function shirtAndCustom(receivedData) {
   ] = creditCardPrice(
     priceComparison,
     receivedData.shirtQuantity,
-    receivedData.shirtID
+    receivedData.shirtID,
   );
 
   return [
